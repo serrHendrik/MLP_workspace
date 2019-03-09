@@ -5,6 +5,7 @@
 # Git Basics
 ## Clone repo
 Navigate to directory where you want to clone this repository and use the following command:
+
     git clone https://github.com/serrHendrik/MLP_workspace.git
 
 ## General workflow
