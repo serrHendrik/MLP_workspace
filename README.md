@@ -1,4 +1,13 @@
-# MLP_workspace
+# Upcoming deadline:
+March, 16th
+# TODO
+* Literature study
+* (Implement another basic RL algorithm?)
+* Evaluate basic RL algorithms
+* Implement the basic form of replicator equations
+* Draw overall conclusions
+* Briefly dscribe how we plan to address tasks 2 and 3.
+
 # Overleaf
 #### Task 1
     https://www.overleaf.com/6877141131cfbwfvdwrskz
