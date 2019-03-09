@@ -21,7 +21,7 @@ Working on a personal local branch is recommended. It makes it easier to rollbac
 git pull origin master (pull updates before starting to work) <br />
 git branch -b my_local_branch
 #### Do work on local branch
-After done some work, add and commit.
+After doing your work, add and commit.
 #### Check for updates on local master
 git checkout master <br />
 git pull origin master
