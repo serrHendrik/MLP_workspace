@@ -42,39 +42,46 @@ reward = reward_pd if game_code == 0 else reward_mp
 #epsilon: We generate new generations until the rate of change in the fraction of agents playing action a at time t is below epsilon
 epsilon = 0.1
 generation_counter = 0
-for _ in range(0,100):
-    generation_counter += 1
+for _ in range(0,1000):
     
-    #ux_t: expected payoff per action at time t for player x, given the choice of action of player x.
-    #       In other words, ux_t[0] is the payoff we would have received if the entire population of player x played action 0.
-    # shape: 2x1
-    # Note: np.matmul(reward[:,:,0],theta1) is the conditional expected payoff, conditioning over the action of player 0.
-    u0_t = np.transpose(np.matmul(np.transpose(theta0),reward[:,:,0]))
-    u1_t = np.matmul(reward[:,:,1],theta1)
+    mF = np.matmul(reward[:,:,0],theta0)
     
-    #average expected payoff of the whole population
-    # shape: 1x1
-    u0_t_star = np.matmul(np.transpose(theta1),u0_t)
-    u1_t_star = np.matmul(np.transpose(theta0),u1_t)
-    
-    #theta_change: change in fraction of agents playing action a at time t
-    # shape: 2x1
-    # note: np.multiply is an element-wise multiplication
-    # To check correctness: both elements should have the same absolute value
-    
-    # PROBLEM FOR MATCHING PENNIES GAME: the change has a different absolute value 
-    # Players do not move to a (0.5 , 0.5) strategy, and final population does not sum to 1
-    
-    theta0_change = np.multiply(theta0,u0_t - u0_t_star) *0.01 #*0.01 is arbitrary (should not be needed)
-    theta1_change = np.multiply(theta1,u1_t - u1_t_star) *0.01
-    
-    #update population
-    theta0 = theta0 + theta0_change 
-    theta1 = theta1 + theta1_change
-    #print "theta_changes: " + str(np.transpose(theta0_change)) + str(np.transpose(theta1_change))
-    #check stopping condition
-    #if abs(theta0_change[0]) < epsilon and abs(theta1_change[0]) < epsilon:
-    #    break
+    theta0 = np.multiply(theta0, mF - np.matmul(np.transpose(theta0),mF) )
+    #print "Theta: " + str(np.transpose(theta0))
+# =============================================================================
+#     generation_counter += 1
+#     
+#     #ux_t: expected payoff per action at time t for player x, given the choice of action of player x.
+#     #       In other words, ux_t[0] is the payoff we would have received if the entire population of player x played action 0.
+#     # shape: 2x1
+#     # Note: np.matmul(reward[:,:,0],theta1) is the conditional expected payoff, conditioning over the action of player 0.
+#     u0_t = np.transpose(np.matmul(np.transpose(theta0),reward[:,:,0]))
+#     u1_t = np.matmul(reward[:,:,1],theta1)
+#     
+#     #average expected payoff of the whole population
+#     # shape: 1x1
+#     u0_t_star = np.matmul(np.transpose(theta1),u0_t)
+#     u1_t_star = np.matmul(np.transpose(theta0),u1_t)
+#     
+#     #theta_change: change in fraction of agents playing action a at time t
+#     # shape: 2x1
+#     # note: np.multiply is an element-wise multiplication
+#     # To check correctness: both elements should have the same absolute value
+#     
+#     # PROBLEM FOR MATCHING PENNIES GAME: the change has a different absolute value 
+#     # Players do not move to a (0.5 , 0.5) strategy, and final population does not sum to 1
+#     
+#     theta0_change = np.multiply(theta0,u0_t - u0_t_star) *0.01 #*0.01 is arbitrary (should not be needed)
+#     theta1_change = np.multiply(theta1,u1_t - u1_t_star) *0.01
+#     
+#     #update population
+#     theta0 = theta0 + theta0_change 
+#     theta1 = theta1 + theta1_change
+#     #print "theta_changes: " + str(np.transpose(theta0_change)) + str(np.transpose(theta1_change))
+#     #check stopping condition
+#     #if abs(theta0_change[0]) < epsilon and abs(theta1_change[0]) < epsilon:
+#     #    break
+# =============================================================================
     
 print 'Final Player0 population: ' + str(np.transpose(theta0))
 print 'Final Player1 population: ' + str(np.transpose(theta1))

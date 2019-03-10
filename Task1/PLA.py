@@ -17,13 +17,7 @@ Implementation based on PROBABILISTIC LEARNING AUTOMATA (Kehagias), starting fro
 
 """
 import random
-
-
-# p (probability matrix): Player x Action -> probability 
-init_p1 = random.random()
-init_p2 = random.random()
-p = [[init_p1,1-init_p1] , [init_p2,1-init_p2]]
-print 'Initial Probs: ' + str(p)
+import numpy as np
 
 def select_action(player):
     if random.random() <= p[player][0]:
@@ -58,32 +52,48 @@ P = 1
 reward_pd = [[[R,R],[S,T]] , [[T,S],[P,P]]]
 reward_mp = [[[1,-1],[-1,1]] , [[-1,1],[1,-1]]]
 #n = number of episodes played
-n = 50000
+n = 10000
+#games: number of games played
+games = 1000
+
+#statistics
+final_prob_counter = np.array([[0.0,0.0],[0.0,0.0]])
 ###
 
+for _ in range(0,games):
+    # p (probability matrix): Player x Action -> probability 
+    init_p1 = random.random()
+    init_p2 = random.random()
+    p = np.array([[init_p1,1-init_p1] , [init_p2,1-init_p2]])
+    #print 'Initial Probs: ' + str(p)
 
-#play n rounds
-for episode in range(0,n):
-    
-    a_p0 = select_action(0)
-    a_p1 = select_action(1)
-    
-    if game_code == 0:
-        # Prisoner's Dilemma
-        r_p0 = reward_pd[a_p0][a_p1][0] - reward_pd[abs(a_p0 - 1)][a_p1][0]
-        r_p1 = reward_pd[a_p0][a_p1][1] - reward_pd[a_p0][abs(a_p1 - 1)][1]
-    else:
-        # Matching Pennies
-        r_p0 = reward_mp[a_p0][a_p1][0] - reward_mp[abs(a_p0 - 1)][a_p1][0]
-        r_p1 = reward_mp[a_p0][a_p1][1] - reward_mp[a_p0][abs(a_p1 - 1)][1]  
-    
-    update(0,a_p0,r_p0)
-    update(1,a_p1,r_p1)
-    
+    #play n rounds
+    for episode in range(0,n):
+        
+        a_p0 = select_action(0)
+        a_p1 = select_action(1)
+        
+        if game_code == 0:
+            # Prisoner's Dilemma
+            r_p0 = reward_pd[a_p0][a_p1][0] - reward_pd[abs(a_p0 - 1)][a_p1][0]
+            r_p1 = reward_pd[a_p0][a_p1][1] - reward_pd[a_p0][abs(a_p1 - 1)][1]
+        else:
+            # Matching Pennies
+            r_p0 = reward_mp[a_p0][a_p1][0] - reward_mp[abs(a_p0 - 1)][a_p1][0]
+            r_p1 = reward_mp[a_p0][a_p1][1] - reward_mp[a_p0][abs(a_p1 - 1)][1]  
+        
+        update(0,a_p0,r_p0)
+        update(1,a_p1,r_p1)
+        
+    #registrate final probabilities
+    final_prob_counter += p
+    # =============================================================================
+    # #calculate results
+    # print '*** RESULTS ***'
+    # print 'Probabilities: ' + str(p)
+    # =============================================================================
 
-#calculate results
-print '*** RESULTS ***'
-print 'Probabilities: ' + str(p)
-
-
+print '*** Results ***'
+print " Games played: " + str(games)
+print " Average probabilities: \n" + str(final_prob_counter / (games * 1.0))
 
