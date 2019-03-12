@@ -36,7 +36,7 @@ Working on a personal local branch is recommended. It makes it easier to rollbac
 #### Do work on local branch
     After doing your work, add and commit.
 #### Check for updates on local master
-    git checkout master <br />
+    git checkout master
     git pull origin master
 #### merge master with local personal branch
     git merge master my_local_branch
