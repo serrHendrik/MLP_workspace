@@ -31,8 +31,8 @@ Navigate to directory where you want to clone this repository and use the follow
 ## Extended workflow with personal local branch
 Working on a personal local branch is recommended. It makes it easier to rollback or simply discard wrong commits by deleting the local branch.
 #### Create local branch
-    git pull origin master (pull updates before starting to work) <br />
-    git branch -b my_local_branch
+    git pull origin master (pull updates before starting to work)
+    git checkout -b my_local_branch
 #### Do work on local branch
     After doing your work, add and commit.
 #### Check for updates on local master
