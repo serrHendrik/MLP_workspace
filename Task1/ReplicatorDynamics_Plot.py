@@ -40,9 +40,9 @@ for t0 in range(0,grid_dimension):
         theta1[0] = t1/float(grid_dimension-1)
         theta1[1] = 1-t1/float(grid_dimension-1)
         #calculate changes
-        Ay=((np.matmul(reward[0,:,:],theta1)))
+        Ay=((np.matmul(reward[:,:,0],theta1)))
         theta0_change = theta0[0]*(Ay[0]-np.matmul(np.transpose(theta0),Ay))
-        Bx=((np.matmul(reward[1,:,:],theta0)))
+        Bx=(np.transpose((np.matmul(np.transpose(theta0),reward[:,:,1]))))
         theta1_change = theta1[0]*(Bx[0]-np.matmul(np.transpose(theta1),Bx))
 
         #add arrow to the plot

@@ -27,9 +27,9 @@ game_code = 0
 reward_pd = [[[3,3],[0,5]] , [[5,0],[1,1]]]
 reward_mp = [[[1,-1],[-1,1]] , [[-1,1],[1,-1]]]
 #n = number of episodes played in a game
-n = 10000
+n = 1000
 #games: number of games played
-games = 1000
+games = 10000
 
 #statistics
 final_policy_counter = np.array([[0,0],[0,0]])
@@ -136,7 +136,7 @@ for _ in range(0,games):
 print " *** Results ***"
 print " Games played: " + str(games)
 print " final_policy_counter \n" + str(final_policy_counter)
-print " In percentage: \n" + str(final_policy_counter / 1000.0 * 100.0)
+print " In percentage: \n" + str(100 * final_policy_counter / (games * 1.0))
 
         
 

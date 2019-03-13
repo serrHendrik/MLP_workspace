@@ -43,7 +43,7 @@ def update(player,action,reward):
 ###
 # game_code: Prisoner's Dilemma (0)
 #            Matching Pennies (1)
-game_code = 0
+game_code = 1
 # Reward matrix: reward[action_player_0][action_player_1][reward_player_x]
 T = 5
 R = 3
@@ -52,9 +52,9 @@ P = 1
 reward_pd = [[[R,R],[S,T]] , [[T,S],[P,P]]]
 reward_mp = [[[1,-1],[-1,1]] , [[-1,1],[1,-1]]]
 #n = number of episodes played
-n = 10000
+n = 1000
 #games: number of games played
-games = 1000
+games = 10000
 
 #statistics
 final_prob_counter = np.array([[0.0,0.0],[0.0,0.0]])
