@@ -23,12 +23,12 @@ import matplotlib.pyplot as plt
 
 
 # Adding a step size slows down the redistribution of the population, and also prevents impossible populations (e.g. theta_p1 = [1.2 , -0.2])
-step_size = 0.1
+step_size = 0.007
 
 ###
 # game_code: Prisoner's Dilemma (0)
 #            Matching Pennies (1)
-game_code = 0
+game_code = 1
 learning_trajectories = 20
 # Reward / Utility matrix: reward[action_player_0][action_player_1][reward_player_x]
 T = 5
@@ -42,12 +42,18 @@ reward = reward_pd if game_code == 0 else reward_mp
 generations = 1000
 
 
-for _ in range(0,learning_trajectories):
+for lt in range(0,learning_trajectories):
     #theta: Action a -> proportion of players playing action a at time t
     #theta_p0 / theta_p1: theta for population of player0 / player1
     #shape: 2x1
-    init_fraction0 = random.random()
-    init_fraction1 = random.random()
+
+    #using handpicked initial fractions allows for equidistant dynamics to be drawn
+    if game_code == 0:
+        init_fraction0 = 0.95+float(lt)/float(20*learning_trajectories)
+        init_fraction1 = 1.95- init_fraction0
+    else:
+        init_fraction0 = float(lt)/float(learning_trajectories)
+        init_fraction1 = float(lt)/float(learning_trajectories)
     theta_p0 = np.matrix([[init_fraction0] , [1 - init_fraction0]])
     theta_p1 = np.matrix([[init_fraction1] , [1 - init_fraction1]])
     #print 'Initial theta_p0: ' + str(np.transpose(theta_p0))
@@ -74,7 +80,7 @@ for _ in range(0,learning_trajectories):
     #print 'Final Player0 population: ' + str(np.transpose(theta_p0))
     #print 'Final Player1 population: ' + str(np.transpose(theta_p1))
     
-    plt.plot(x,y,linestyle="solid")
+    plt.plot(x,y,linestyle="solid",color="darkred")
 
 #plt.axis([0, 1, 0, 1]);
 #plt.grid()
@@ -106,5 +112,8 @@ for t0 in range(0,grid_dimension):
 
 
 plt.axis([0, 1, 0, 1]);
+move = "Collaborate" if game_code == 0 else "Heads"
+plt.xlabel("Player 1: Odds of playing "+move)
+plt.ylabel("Player 2: Odds of playing "+move)
 plt.grid()
 plt.show()
