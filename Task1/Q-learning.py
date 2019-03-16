@@ -136,7 +136,7 @@ for _ in range(0,games):
 print " *** Results ***"
 print " Games played: " + str(games)
 print " final_policy_counter \n" + str(final_policy_counter)
-print " In percentage: \n" + str(100 * final_policy_counter / (games * 1.0))
+print " In percentage: \n" + str(100.0 * final_policy_counter / (games * 1.0))
 
         
 
