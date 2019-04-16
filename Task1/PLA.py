@@ -93,7 +93,7 @@ for _ in range(0,games):
     # print 'Probabilities: ' + str(p)
     # =============================================================================
 
-print '*** Results ***'
-print " Games played: " + str(games)
-print " Average probabilities: \n" + str(final_prob_counter / (games * 1.0))
+print('*** Results ***')
+print(" Games played: " + str(games))
+print(" Average probabilities: \n" + str(final_prob_counter / (games * 1.0)))
 

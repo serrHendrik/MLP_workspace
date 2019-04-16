@@ -1,49 +1,41 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Mar  8 16:07:30 2019
+Created on Mon Apr 15 16:47:46 2019
 
-@author: Hendrik Serruys
+@author: emile
 """
-"""
-Change the game_code (CTRL+F) to change the game:
-The Prisoner's Dilemma Game (0)
-The Matching Pennies Game (1)
 
-Q-learning
-Notes:      * There is only 1 state. As such, all functions apply to this state implicitely. E.g.: Q(a) used instead of Q(s,a)))
-            * The implemented algorithm is based on the book MULTIAGENT SYSTEMS (page 216)
-            * For code compression, some functions require the player as input. E.g.: Q(a) -> Q(player,a)
-            
-"""
 
 import random
 import numpy as np
+import math
 
-###
-# game_code: Prisoner's Dilemma (0)
-#            Matching Pennies (1)
-game_code = 0
 # Reward matrix: reward[action_player_0][action_player_1][reward_player_x]
-reward_pd = [[[3,3],[0,5]] , [[5,0],[1,1]]]
-reward_mp = [[[1,-1],[-1,1]] , [[-1,1],[1,-1]]]
+#         Rock Paper Scissor
+# Rock
+# Paper
+# Scissor
+reward_matrix = [[[0,0], [-1,1], [1,-1]],
+                 [[1,-1], [0,0], [-1,1]],
+                 [[-1,1], [1,-1], [0,0]]]
 #n = number of episodes played in a game
 n = 1000
 #games: number of games played
 games = 10000
 
 #statistics
-final_policy_counter = np.array([[0,0],[0,0]])
+final_policy_counter = np.array([[0,0,0],[0,0,0],[0,0,0]])
 ###
 
 
 def select_action(player,k):
     action = Pi[player]
 
-    prob_action = k**Q[player][action] / (k**Q[player][0] + k**Q[player][1])
+    prob_action = k**Q[player][action] / (k**Q[player][0] + k**Q[player][1] + k**Q[player][2])
     
     if random.random() > prob_action:
         # explore a random action (uniform chance)
-        action = int(round(random.random()))
+        action = math.trunc((3*random.random()))
         counter_rand_actions[player] += 1
         
         
@@ -61,12 +53,9 @@ def update(player,action,reward):
     
     # Update Q, V and Pi
     Q[player][action] = (1 - alpha)*Q[player][action] + alpha*(reward + gamma*V[player])
-    if Q[player][0] >= Q[player][1]:
-        V[player] = Q[player][0]
-        Pi[player] = 0
-    else:
-        V[player] = Q[player][1]
-        Pi[player] = 1
+    if Q[player][action] >= V[player]:
+        V[player] = Q[player][action]
+        Pi[player] = action
 
 for _ in range(0,games):
     #Q-learning
@@ -78,15 +67,19 @@ for _ in range(0,games):
         # inverse of learning rate: 
         # alpha(player,action) = 1 / visits(player,action)
         # visits(p,a) is incremented every time player p uses action a
-    visits = [[0,0],[0,0]] 
+    visits = [[0,0,0],[0,0,0]] 
         # Q-function: Player x Action -> Q-value
         # Note: No states needed as there is only 1 state.
-        # Note: "High initial values, also known as "optimistic initial conditions", can encourage exploration: no matter what action is selected, the update rule will cause it to have lower values than the other alternative, thus increasing their choice probability." - source: https://en.wikipedia.org/wiki/Q-learning
+        # Note: "High initial values, also known as "optimistic initial conditions", 
+        # can encourage exploration: no matter what action is selected, 
+        # the update rule will cause it to have lower values than the other alternative, 
+        # thus increasing their choice probability." 
+        # - source: https://en.wikipedia.org/wiki/Q-learning
     q_init = 100.0
-    Q = [[q_init,q_init], [q_init,q_init]]
+    Q = [[q_init,q_init, q_init], [q_init,q_init,q_init]]
         # Strategy / Policy function: Player -> Action
-        # Note: Action codes: (C)olaborate = 0, (D)efect = 1
-    Pi = [int(round(random.random())),int(round(random.random()))]
+        # Note: Action codes: Rock = 0, Paper = 1, Scissors = 2
+    Pi = [int(math.trunc(3*random.random())),int(math.trunc(3*random.random()))]
     #print "Initial Policy: " + str(Pi)
         # V-function: Player -> V-value
         # Note: V(p) = max_a Q(p,a)
@@ -108,12 +101,7 @@ for _ in range(0,games):
         a_p0 = select_action(0,k)
         a_p1 = select_action(1,k)
         
-        if game_code == 0:
-            # Prisoner's Dilemma
-            r = reward_pd[a_p0][a_p1]
-        else:
-            # Matching Pennies
-            r = reward_mp[a_p0][a_p1]        
+        r = reward_matrix[a_p0][a_p1]        
         
         update(0,a_p0,r[0])
         update(1,a_p1,r[1])
