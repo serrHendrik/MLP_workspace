@@ -75,7 +75,7 @@ for _ in range(0,learning_trajectories):
 
 # Phase plot
 
-#TODO
+#TODO plot met 4 variabelen? 
 grid_dimension = 11
 plot_arrow_scaling = 1/10.0
 
