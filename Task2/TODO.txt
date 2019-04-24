@@ -1,0 +1,11 @@
+TODO
+
+Visualization of Q-learning RPS : 2 variables per player = 4 variables, best way to visualize this?
+17/4: RPS is a symmetric game, so no need for multi-population dynamics. 2 variables suffice, plot as in assignment (fig 2c)
+
+What does fig 2b mean? (average time evolutionary dynamics)
+biased RPS game? (fig 2d)
+
+Optional : making Q-learning modular like the fictitious player game
+
+How will we combine Q-learning and opponent modelling?

@@ -9,6 +9,7 @@ Based on book Multiagent Systems: Algorithmic, Game-Theoretic, and logical funct
 """
 
 import numpy as np
+import random
 
 #Play CODES:    0 : Rock
 #               1 : Paper
@@ -43,6 +44,8 @@ class fictitiousPlayerRPS:
         self.beliefs[opponentPlay] += 1
         if self.beliefs[opponentPlay] > self.beliefs[self.expected]:
             self.expected = opponentPlay
+        elif self.beliefs[opponentPlay] == self.beliefs[self.expected]:
+            if random.random() > 0.5 : self.expected = opponentPlay
         
 class RPSgame:
     # Reward matrix: reward[action_player_0][action_player_1][reward_player_x]
@@ -55,7 +58,7 @@ class RPSgame:
                      [[-1,1], [1,-1], [0,0]]])
     reward_matrix = reward_bimatrix[:,:,0]
     
-    def __init__(self,player1 = fictitiousPlayerRPS(), player2 = fictitiousPlayerRPS()):
+    def __init__(self, player1 = fictitiousPlayerRPS(), player2 = fictitiousPlayerRPS()):
         self.p1 = player1
         self.p2 = player2
         self.results = np.zeros([3,3])
@@ -70,11 +73,12 @@ class RPSgame:
             self.results[play_p1, play_p2] += 1
         return self.results
 
-p1 = fictitiousPlayerRPS([1,5,3])
-p2 = fictitiousPlayerRPS([6,2,9])
-game = RPSgame(p1,p2) 
+#p1 = fictitiousPlayerRPS([12,5,3])
+#p2 = fictitiousPlayerRPS([6,21,9])
+#game = RPSgame(p1,p2) 
+game = RPSgame()
 results = game.play()
 print(results)
 
-#Findings: fictitiousplay very influencable by initial beliefs
+#Findings: fictitious play very influencable by initial beliefs
 #What when beliefs of 2 actions are equal? (now just maintain same strategy)       
