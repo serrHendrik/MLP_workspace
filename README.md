@@ -1,5 +1,5 @@
 # Upcoming deadline:
-March, 16th
+May, 13th
 # TODO
 * Task 2
 * Task 3
