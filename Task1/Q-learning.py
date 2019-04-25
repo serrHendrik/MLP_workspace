@@ -74,7 +74,7 @@ for _ in range(0,games):
         # gamma: discount factor which determines the importance of future rewards
         # 0 =< gamma < 1
         # For gamma = 0, the agent is "myopic" (short sighted) and only considers the current reward.
-    gamma = 0
+    gamma = 0.0
         # inverse of learning rate: 
         # alpha(player,action) = 1 / visits(player,action)
         # visits(p,a) is incremented every time player p uses action a
