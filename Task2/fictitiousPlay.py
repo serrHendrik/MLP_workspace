@@ -82,9 +82,9 @@ class RPSgame:
             self.results[play_p1, play_p2] += 1
         return self.results
     
-max_init = 1
-p1 = fictitiousPlayerRPS([random.randint(0,max_init),random.randint(0,max_init),random.randint(0,max_init)])
-p2 = fictitiousPlayerRPS([random.randint(0,max_init),random.randint(0,max_init),random.randint(0,max_init)])
+max_init = 10
+p1 = fictitiousPlayerRPS([random.randint(1,max_init),random.randint(1,max_init),random.randint(1,max_init)])
+p2 = fictitiousPlayerRPS([random.randint(1,max_init),random.randint(1,max_init),random.randint(1,max_init)])
 game = RPSgame(p1,p2) 
 #game = RPSgame()
 results = game.play()
