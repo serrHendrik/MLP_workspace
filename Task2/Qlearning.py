@@ -28,18 +28,20 @@ final_policy_counter = np.array([[0,0,0],[0,0,0],[0,0,0]])
 ###
 
 
+# Select an action for a player
+# Note: Player codes: player_0 = 0, player_1 = 1
+# Note: prob_action is the probability of actually picking the action.
+#       prob_action increases towards 1 with increasing k
+#       (formula derived from ML & Inductive Inference (H. Blockeel), p. 265)
 def select_action(player,k):
     action = Pi[player]
-
     prob_action = k**Q[player][action] / (k**Q[player][0] + k**Q[player][1] + k**Q[player][2])
     
     if random.random() > prob_action:
-        # explore a random action (uniform chance)
+        # explore a random action (action uniformly chosen)
         action = math.trunc((3*random.random()))
         counter_rand_actions[player] += 1
         
-        
-    
     visits[player][action] += 1
     return action
 
@@ -85,17 +87,14 @@ for _ in range(0,games):
         # Note: V(p) = max_a Q(p,a)
     V = [max(Q[0]),max(Q[1])]
     
-    # Select an action for a player
-    # Note: Player codes: player_0 = 0, player_1 = 1
-    # Note: prob_action is the probability of actually picking the action.
-    #       prob_action increases towards 1 with increasing k
-    #       (formula derived from ML & Inductive Inference (H. Blockeel), p. 265)
+        # Keep a counter to check upon the amount of random actions per player (see select_action())
     counter_rand_actions = [0,0];
     
     #play n rounds
     for episode in range(0,n):
         
-        # k is an exploration variable used in select_action
+        # k is an exploration variable used in select_action.
+        # based on counter_rand_actions, tune this value to a desired degree of exploration
         k = episode / 1000.0 + 1.0
         
         a_p0 = select_action(0,k)
@@ -105,6 +104,7 @@ for _ in range(0,games):
         
         update(0,a_p0,r[0])
         update(1,a_p1,r[1])
+    #end for
     
     #registrate final policy
     final_policy_counter[Pi[0]][Pi[1]] += 1
@@ -124,8 +124,12 @@ for _ in range(0,games):
 print(" *** Results ***")
 print( " Games played: " + str(games))
 print( " final_policy_counter \n" + str(final_policy_counter))
-print( " In percentage: \n" + str(100 * final_policy_counter / (games * 1.0)))
+print( " In percentage: \n" + str(100.0 * final_policy_counter / (games * 1.0)))
 
-        
+# Conclusion: 
+# Similar to Pennies Game.
+# All strategies are Pareto optimal (zero-sum game)
+# Nash Equilibrium is (0.33,0.33,0.33).
+
 
      

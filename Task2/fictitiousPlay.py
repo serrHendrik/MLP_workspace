@@ -21,12 +21,12 @@ def bestResponse(play):
     else :
         print("ERROR: play has to be 0,1 or 2")
         return -1
-    
+
 
 class fictitiousPlayerRPS:
     
     #initialBeliefs = [<number of Rocks played>, <number of Paper played>, <number of Scissors played>]
-    def __init__(self, initialBeliefs = [0,0,0]):
+    def __init__(self, initialBeliefs = [1,1,1]):
         self.beliefs = initialBeliefs
         self.expected = initialBeliefs.index(max(initialBeliefs))
     
@@ -37,7 +37,7 @@ class fictitiousPlayerRPS:
     def update(self, played, payoff):
         if payoff == -1 : opponentPlay = bestResponse(played) #deduce the play of adversary
         elif payoff == 0 : opponentPlay = played
-        elif payoff == 1 : opponentPlay = (played - 1) % 2 #bestResponse(opponentPlay) = played 
+        elif payoff == 1 : opponentPlay = self.expected
         else: 
             print("ERROR: payoff is -1,0 or 1")
             return -1
@@ -54,8 +54,8 @@ class RPSgame:
     # Paper
     # Scissor
     reward_bimatrix = np.array([[[0,0], [-1,1], [1,-1]],
-                     [[1,-1], [0,0], [-1,1]],
-                     [[-1,1], [1,-1], [0,0]]])
+                                [[1,-1], [0,0], [-1,1]],
+                                [[-1,1], [1,-1], [0,0]]])
     reward_matrix = reward_bimatrix[:,:,0]
     
     def __init__(self, player1 = fictitiousPlayerRPS(), player2 = fictitiousPlayerRPS()):

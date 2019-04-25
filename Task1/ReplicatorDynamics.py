@@ -29,7 +29,7 @@ step_size = 0.007
 # game_code: Prisoner's Dilemma (0)
 #            Matching Pennies (1)
 game_code = 1
-learning_trajectories = 20
+learning_trajectories = 10
 # Reward / Utility matrix: reward[action_player_0][action_player_1][reward_player_x]
 T = 5
 R = 3

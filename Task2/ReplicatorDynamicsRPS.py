@@ -2,9 +2,9 @@
 """
 Created on Tue Apr 16 18:11:01 2019
 
-@author: emile Breyne
-        Andreas Stieglitz
-        Hendrik Serruys
+@author: Emile Breyne
+         Andreas Stieglitz
+         Hendrik Serruys
 
 Replicator Dynamics
 
@@ -17,10 +17,11 @@ Note: the implementation is extended for non-symmetric games like the Matching P
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 # Adding a step size slows down the redistribution of the population, and also prevents impossible populations (e.g. theta_p1 = [1.2 , -0.2])
-step_size = 0.1
+step_size = 0.01
 
 # Reward matrix: reward[action_player_0][action_player_1][reward_player_x]
 #         Rock Paper Scissor
@@ -28,11 +29,20 @@ step_size = 0.1
 # Paper
 # Scissor
 reward_matrix = np.array([[[0,0], [-1,1], [1,-1]],
-                 [[1,-1], [0,0], [-1,1]],
-                 [[-1,1], [1,-1], [0,0]]])
+                          [[1,-1], [0,0], [-1,1]],
+                          [[-1,1], [1,-1], [0,0]]])
 
 generations = 1000
-learning_trajectories = 20
+learning_trajectories = 10
+
+#Plot
+fig = plt.figure()
+ax = fig.add_subplot(111)
+# Transform matrix
+T = np.matrix([[1,-0.5],[-1,-0.5],[0,1]])
+T[:,0] = T[:,0] / np.sqrt(1+1)
+T[:,1] = T[:,1] / np.sqrt(0.5**2 + 0.5**2 + 1)
+
 
 for _ in range(0,learning_trajectories):
     #theta: Action a -> proportion of players playing action a at time t
@@ -42,14 +52,15 @@ for _ in range(0,learning_trajectories):
     
     theta_p0 = np.matrix([[random.random()], [random.random()], [random.random()]])
     theta_p0 = theta_p0 / np.sum(theta_p0)
-    theta_p1 = np.matrix([[random.random()], [random.random()], [random.random()]])
-    theta_p1 = theta_p1 / np.sum(theta_p1)
+    
+    theta_p1 = theta_p0
+    
     #print 'Initial theta_p0: ' + str(np.transpose(theta_p0))
     #print 'Initial theta_p1: ' + str(np.transpose(theta_p1))
     
     #plotting
-    x = np.zeros(generations)
-    y = np.zeros(generations)
+    #The nth row represents the population density at generation n
+    x = np.zeros((generations,3))
     
     for i in range(0,generations):
         mean_payoff_p0 = np.matmul(reward_matrix[:,:,0],theta_p1)
@@ -61,45 +72,44 @@ for _ in range(0,learning_trajectories):
         theta_p0 += diff_theta_p0 * step_size
         theta_p1 += diff_theta_p1 * step_size
     
-        x[i] = theta_p0[0]
-        y[i] = theta_p1[0]
-        
-    #print 'Final Player0 population: ' + str(np.transpose(theta_p0))
-    #print 'Final Player1 population: ' + str(np.transpose(theta_p1))
-    
-    plt.plot(x,y,linestyle="solid")
+        x[i,:] = theta_p0.ravel()
 
-#plt.axis([0, 1, 0, 1]);
+    #end for
+    
+    x_ = np.matmul(x,T)
+    plt.plot(x_[:,0],x_[:,1],linestyle="solid")
+
+
+#ax.set_xticks([])
+#ax.set_yticks([])
+ax.set_aspect('equal')
 #plt.grid()
 #plt.show()
 
+
 # Phase plot
 
-#TODO plot met 4 variabelen? 
-grid_dimension = 11
+grid_dimension = 10
+grid_dim = 10.2
 plot_arrow_scaling = 1/10.0
+offset = np.transpose(np.array([[0,1,0]]))
+
+for i in range(0,grid_dimension + 1):
+    for j in range(1,grid_dimension + 1):
+        ii = i + 0.1
+        jj = j + 0.1
+        theta_p0 = offset + ii / grid_dim * np.sqrt(2) * T[:,0] + jj / grid_dim * np.sqrt(3)/2.0 * T[:,1]
+        if (theta_p0[0,0] > 0 and theta_p0[1,0] > 0):
+            mean_payoff_p0 = np.matmul(reward_matrix[:,:,0],theta_p0)
+            diff_theta_p0 = np.multiply(theta_p0, mean_payoff_p0 - np.matmul(np.transpose(theta_p0),mean_payoff_p0) )
+            theta_p0 += diff_theta_p0 * step_size
+    
+            #add arrow to the plot
+            diff_ = np.matmul(np.transpose(diff_theta_p0),T)
+            theta_ = np.matmul(np.transpose(theta_p0),T)
+    
+            plt.arrow(theta_[0,0],theta_[0,1],diff_[0,0]*plot_arrow_scaling,diff_[0,1]*plot_arrow_scaling,head_width=0.02, head_length=0.03)
 
 
-theta0 = [0,0,0]
-theta1 = [0,0,0]
-for t0 in range(0,grid_dimension):
-    for t1 in range(0,grid_dimension):
-        theta0[0] = t0/float(grid_dimension-1)
-        theta0[1] = 1-t0/float(grid_dimension-1)
-        theta1[0] = t1/float(grid_dimension-1)
-        theta1[1] = 1-t1/float(grid_dimension-1)
-        #calculate changes
-        Ay=((np.matmul(reward_matrix[:,:,0],theta1)))
-        theta0_change = theta0[0]*(Ay[0]-np.matmul(np.transpose(theta0),Ay))
-        Bx=(np.transpose((np.matmul(np.transpose(theta0),reward_matrix[:,:,1]))))
-        theta1_change = theta1[0]*(Bx[0]-np.matmul(np.transpose(theta1),Bx))
-
-        #add arrow to the plot
-        plt.arrow(theta0[0],theta1[0],theta0_change*plot_arrow_scaling,theta1_change*plot_arrow_scaling,head_width=0.02, head_length=0.03)
-
-
-
-
-plt.axis([0, 1, 0, 1]);
-plt.grid()
+#plt.grid()
 plt.show()
