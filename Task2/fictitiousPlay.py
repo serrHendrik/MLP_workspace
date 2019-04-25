@@ -28,7 +28,11 @@ class fictitiousPlayerRPS:
     #initialBeliefs = [<number of Rocks played>, <number of Paper played>, <number of Scissors played>]
     def __init__(self, initialBeliefs = [1,1,1]):
         self.beliefs = initialBeliefs
-        self.expected = initialBeliefs.index(max(initialBeliefs))
+        
+        if initialBeliefs[0] == initialBeliefs[1] and initialBeliefs[0] == initialBeliefs[2]:
+            self.expected = random.randint(0,2)
+        else:
+            self.expected = initialBeliefs.index(max(initialBeliefs))
     
     def play(self):
         return bestResponse(self.expected)
