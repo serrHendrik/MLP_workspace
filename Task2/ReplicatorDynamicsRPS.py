@@ -39,7 +39,7 @@ learning_trajectories = 10
 fig = plt.figure()
 ax = fig.add_subplot(111)
 # Transform matrix
-T = np.matrix([[1,-0.5],[-1,-0.5],[0,1]])
+T = np.matrix([[1.0,-0.5],[-1.0,-0.5],[0.0,1.0]])
 T[:,0] = T[:,0] / np.sqrt(1+1)
 T[:,1] = T[:,1] / np.sqrt(0.5**2 + 0.5**2 + 1)
 
@@ -82,7 +82,7 @@ for _ in range(0,learning_trajectories):
 
 #ax.set_xticks([])
 #ax.set_yticks([])
-ax.set_aspect('equal')
+#ax.set_aspect('equal')
 #plt.grid()
 #plt.show()
 
@@ -111,5 +111,13 @@ for i in range(0,grid_dimension + 1):
             plt.arrow(theta_[0,0],theta_[0,1],diff_[0,0]*plot_arrow_scaling,diff_[0,1]*plot_arrow_scaling,head_width=0.02, head_length=0.03)
 
 
-#plt.grid()
+#plot contour of triangle
+corners = np.array([[1,0,0],
+                    [0,1,0],
+                    [0,0,1],
+                    [1,0,0]])
+corners_tf = np.matmul(corners,T);
+plt.plot(corners_tf[:,0],corners_tf[:,1],linestyle='solid',color="black")
+
+plt.grid()
 plt.show()
