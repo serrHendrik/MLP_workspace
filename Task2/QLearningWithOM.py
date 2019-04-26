@@ -11,73 +11,9 @@ Combined Q-learning with opponent modelling
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-import math
+from fictitiousPlayerRPS import fictitiousPlayerRPS
+from qomPlayerRPS import qomPlayerRPS
 
-class qomPlayer:
-    
-    def __init__(self,alpha = 0.1, initialBeliefs = [1,1,1]):
-        
-        #Q function: AxA -> Q value
-        #AxA: Action of self and Action of other player
-        q_init = 100.0
-        self.Q = np.array([[q_init,q_init,q_init],
-                           [q_init,q_init,q_init],
-                           [q_init,q_init,q_init]])
-        self.alpha = alpha
-        
-        #Opponent Modelling
-        self.beliefs = np.array(initialBeliefs)
-        if initialBeliefs[0] == initialBeliefs[1] and initialBeliefs[0] == initialBeliefs[2]:
-            self.expected = random.randint(0,2)
-        else:
-            self.expected = initialBeliefs.index(max(initialBeliefs))
-        
-        #Expected Value for player's actions:
-        self.EV = np.zeros(3)
-        for i in range(0,3):
-            self.EV[i] = sum( np.multiply(self.Q[i,:], self.beliefs / float(sum(self.beliefs))) )
-        
-        #count random actions
-        self.counter = 0
-        
-        #Track total earned reward
-        self.total_reward = 0
-        
-    def play(self,k):
-        #Find all actions with maximum EV. Select a random action of these.
-        possible_actions = np.argwhere(self.EV == np.amax(self.EV)).ravel()
-        r = random.randint(0,possible_actions.shape[0]-1)
-        action = possible_actions[r]
-        
-        # Exploration vs Exploitation
-        #action = self.explore(action,k)
-        
-        return action
-        
-    # Use Boltzmann Exploration to possibly alter the action
-    # Does not work yet! Problem because of Q values
-    def explore(self,action,k):
-        prob_action = k**self.EV[action] / (k**self.EV[0] + k**self.EV[1] + k**self.EV[2])
-        print("prob_action: " + str(prob_action))
-        new_action = action
-        if random.random() > prob_action:
-            new_action = math.trunc((3*random.random()))
-            self.counter += 1
-        
-        return new_action
-    
-    def update(self, myAction, opponentAction, reward):
-        #Update reward count
-        self.total_reward += reward
-        print(str(self.total_reward))
-        #Update Q
-        self.Q[myAction,opponentAction] = (1 - self.alpha)*self.Q[myAction,opponentAction] + self.alpha*reward
-        
-        #Update beliefs
-        self.beliefs[opponentAction] += 1
-        
-        #Update EV
-        self.EV[myAction] = sum( np.multiply(self.Q[myAction,:], self.beliefs / float(sum(self.beliefs))) )
         
 
 class RPSgame:
@@ -91,27 +27,107 @@ class RPSgame:
                                 [[-1,1], [1,-1], [0,0]]])
     reward_matrix = reward_bimatrix[:,:,0]
     
-    def __init__(self, player1 = qomPlayer(), player2 = qomPlayer()):
+    def __init__(self, episodes = 10000, player1 = qomPlayerRPS(), player2 = qomPlayerRPS()):
+        self.episodes = episodes
         self.p1 = player1
         self.p2 = player2
         self.results = np.zeros([3,3])
         
-    def play(self, episodes = 1000):
-        for ep in range(episodes):
+    def play(self):
+        for ep in range(self.episodes):
             
-            k = ep + 1.0
+            #T: Temperature in Boltzmann Exploration
+            # T > 0
+            # For T -> +inf, an agent will choose an action at random (exploration)
+            # For T -> 0, an agent will choose the action with largest EV (exploitation)
+            T = 10.0 / float(np.min([ep+1,1000]))
             
-            play_p1 = self.p1.play(k)
-            play_p2 = self.p2.play(k)
+            if (isinstance(self.p1,qomPlayerRPS)):
+                play_p1 = self.p1.play(T)
+            elif (isinstance(self.p1,fictitiousPlayerRPS)):
+                play_p1 = self.p1.play()
+            else:
+                print("ERROR: Player 1 is an instance of an unknown type.")
+                return -1
+            
+            if (isinstance(self.p2,qomPlayerRPS)):
+                play_p2 = self.p2.play(T)
+            elif (isinstance(self.p2,fictitiousPlayerRPS)):
+                play_p2 = self.p2.play()
+            else:
+                print("ERROR: Player 2 is an instance of an unknown type.")
+                return -1
+            
+            #print("Player moves: " + str(play_p1) + " and " + str(play_p2))
             payoff_p1, payoff_p2 = self.reward_bimatrix[play_p1,play_p2]
             self.p1.update(play_p1,play_p2,payoff_p1)
             self.p2.update(play_p2,play_p1,payoff_p2)
             self.results[play_p1, play_p2] += 1
         return self.results
 
+alpha = 0.1
+max_init = 10
+p1 = qomPlayerRPS(alpha = 0.1, initialBeliefs = [random.randint(1,max_init),random.randint(1,max_init),random.randint(1,max_init)])
+p2 = qomPlayerRPS(alpha = 0.1, initialBeliefs = [random.randint(1,max_init),random.randint(1,max_init),random.randint(1,max_init)])
+p3 = fictitiousPlayerRPS([random.randint(1,max_init),random.randint(1,max_init),random.randint(1,max_init)])
 
-game = RPSgame()
+
+game = RPSgame(player1 = p1, player2 = p3) 
 results = game.play()
 print(results)
 print("Row player: " + str(results.sum(axis=1) / sum(sum(results))))
 print("Column player: " + str(results.sum(axis=0) / sum(sum(results))))
+
+if (isinstance(game.p1,qomPlayerRPS)):
+    print("Random number of actions for player p1: " + str(game.p1.counter) + " out of a total of " + str(game.episodes))
+if (isinstance(game.p2,qomPlayerRPS)):
+    print("Random number of actions for player p2: " + str(game.p2.counter) + " out of a total of " + str(game.episodes))
+
+print("Total Payoff for p1: " + str(game.p1.total_reward) + " and for p2: " + str(game.p2.total_reward))
+
+
+
+
+#Visualisation
+# 3D to 2D Transform matrix
+T = np.matrix([[1,-0.5],[-1,-0.5],[0,1]])
+# Normalize vectors
+T[:,0] = T[:,0] / np.sqrt(1+1)
+T[:,1] = T[:,1] / np.sqrt(0.5**2 + 0.5**2 + 1)
+
+#Plotted Triagle is
+#   Scissors
+# Paper     Rock
+fig = plt.figure(figsize=(10,5))
+
+# Plot beliefs of player 2
+ax1 = fig.add_subplot(121)
+ax1.grid()
+ax1.axis('equal')
+ax1.set_title("Player2 beliefs about Player1")
+#plot contour of triangle
+corners = np.array([[1,0,0],
+                    [0,1,0],
+                    [0,0,1],
+                    [1,0,0]])
+corners_tf = np.matmul(corners,T)
+ax1.plot(corners_tf[:,0],corners_tf[:,1],linestyle='solid',color="black")
+
+# Plot history of probability of opponent's mixed strategy
+timeline = np.matmul(game.p2.beliefs_timeline,T)
+ax1.plot(timeline[:,0],timeline[:,1],'x-',color="darkred")
+
+# Plot beliefs of player 1
+ax2 = fig.add_subplot(122)
+ax2.grid()
+ax2.axis('equal')
+ax2.set_title("Player1 beliefs about Player2")
+#plot contour of triangle
+ax2.plot(corners_tf[:,0],corners_tf[:,1],linestyle='solid',color="black")
+
+# Plot history of probability of opponent's mixed strategy
+timeline = np.matmul(game.p1.beliefs_timeline,T)
+ax2.plot(timeline[:,0],timeline[:,1],'x-',color="darkred")
+
+#plt.grid()
+plt.show()
