@@ -14,6 +14,8 @@ import websockets
 import json
 from collections import defaultdict
 import random
+import numpy as np
+import myLibrary as ml
 
 
 logger = logging.getLogger(__name__)
@@ -57,14 +59,28 @@ class Agent:
         """
         pass
 
-    def next_action(self):
+    def next_action(self, playing, players, apples):
         """Return the next action this agent wants to perform.
         In this example, the function implements a random move. Replace this
         function with your own approach.
+        
+        :param playing: number of playing player
+        :param players: list of dictionaries (loc and orientation) of players
+        :parm apples: list of apple locations
         :return: (row, column, orientation)
         """
         logger.info("Computing next move (grid={}x{}, player={})"\
                 .format(self.nb_rows, self.nb_cols, self.player))
+        
+        #make state invariant of location and orientation
+        
+        myLoc = players[playing-1]["location"]
+        myOrientation = players[playing-1]["orientation"]
+        
+        appleMatrix = ml.CreateApplesMatrix(apples, myLoc, myOrientation)     
+        playerMatrix = ml.createPlayerMatrix(players, playing, myLoc, myOrientation)
+        
+        #state = appleMatrix + playerMatrix
         # Random move
         return 'move'
 
@@ -117,7 +133,12 @@ async def handler(websocket, path):
                 # An action has been played
                 if msg["nextplayer"] in games[game].player:
                     # Compute your move
-                    nm = games[game].next_action()
+                    
+                    apples = msg["apples"]
+                    playing = msg["nextplayer"]
+                    players = msg["players"]
+                    
+                    nm = games[game].next_action(playing, players, apples)
                     if nm is None:
                         # Game over
                         logger.info("Game over")
