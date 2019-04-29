@@ -1,9 +1,0 @@
-.*
-*.log
-Thumbs.db
-
-node_modules/
-
-!.git*
-!.eslint*
-!.editorconfig
