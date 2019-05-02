@@ -8,6 +8,9 @@ Created on Mon Apr 29 14:47:57 2019
 import numpy as np
 from custom_DRL_agents import new_DQNAgent
 
+"""
+The Agent_IA is Inequity Averse (IA), both advantageous (AIA) and disadvantageous (DIA)
+"""
 class agent_IA:
     
     def __init__(self, player, nb_rows, nb_cols, nb_players, actions):

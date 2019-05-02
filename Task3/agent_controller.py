@@ -22,7 +22,7 @@ games = {}
 agentclass = None
 
 """
-The Agent_IA is Inequity Averse (IA), both advantageous (AIA) and disadvantageous (DIA)
+
 """
 class Agent_controller:
     """
@@ -48,7 +48,8 @@ class Agent_controller:
         self.nb_players = nb_players
         
         #define the mapping of the action scalar to a certain action
-        self.actions = ["left","move","right","fire"]
+        #self.actions = ["left","move","right","fire"]
+        self.actions = ["left","move","right"]
         
         # Total number of inequity adverse agents
         self.IA_agents_allowed = 2
