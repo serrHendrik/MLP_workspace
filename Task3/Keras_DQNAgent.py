@@ -12,6 +12,7 @@ https://keon.io/deep-q-learning/
 from collections import deque
 import numpy as np
 import random
+import os
 from keras.models import Sequential
 from keras.models import load_model
 from keras.layers import Dense, Activation
@@ -20,9 +21,11 @@ from keras.optimizers import Adam
 # Deep Q-learning Agent
 class Keras_DQNAgent:
     
-    def __init__(self, state_size, action_size, model_filename = None):
+    def __init__(self, state_size, action_size, model_filename):
         self.state_size = state_size
         self.action_size = action_size
+        self.model_filename = model_filename
+        
         self.memory = deque(maxlen=2000)
         self.batch_size = 32
         self.gamma = 0.95    # discount rate
@@ -35,10 +38,10 @@ class Keras_DQNAgent:
         self.replay_counter = 0
         
         
-        if model_filename == None:
+        if os.path.isfile(self.model_filename) == False:
             self.model = self._build_model()
         else:
-            self.model = load_model(model_filename)
+            self.model = load_model(self.model_filename)
         
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -79,6 +82,6 @@ class Keras_DQNAgent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-    def save_model(self, model_filename):
-        self.model.save(model_filename)
+    def save_model(self):
+        self.model.save(self.model_filename)
 
