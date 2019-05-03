@@ -12,10 +12,11 @@ import logging
 import asyncio
 import websockets
 import json
+import os
 import numpy as np
 from agent_IA import agent_IA
-from agent_free_rider import agent_free_rider
-
+from agent_FR import agent_FR
+from Keras_DQNAgent import Keras_DQNAgent
 
 logger = logging.getLogger(__name__)
 games = {}
@@ -46,39 +47,57 @@ class Agent_controller:
         self.nb_rows = nb_rows
         self.nb_cols = nb_cols
         self.nb_players = nb_players
+        self.state_size = 15*15
         
         #define the mapping of the action scalar to a certain action
         #self.actions = ["left","move","right","fire"]
         self.actions = ["left","move","right"]
+        self.action_size = len(self.actions)
         
         # Total number of inequity adverse agents
         self.IA_agents_allowed = 2
         self.IA_agents_present = 0
         
+        
+        #DQN network for Inequity Adverse (IA) agents!
+        IA_model_filename = "models/DQN_IA_MODEL.h5"
+        if os.path.isfile(IA_model_filename) == False:
+            IA_model_filename = None
+        self.DQN_IA_network = Keras_DQNAgent(state_size = self.state_size, action_size = self.action_size, model_filename=IA_model_filename)
+        #DQN network for Free Rider agents!
+        FR_model_filename = "models/DQN_FR_MODEL.h5"
+        if os.path.isfile(FR_model_filename) == False:
+            FR_model_filename = None
+        self.DQN_FR_network = Keras_DQNAgent(state_size = self.state_size, action_size = self.action_size, model_filename=FR_model_filename)
+        
         #Keep one agent per player
         self.agents = dict()
         if self.IA_agents_present < self.IA_agents_allowed:
-            self.agents[player] = agent_IA(player, nb_rows, nb_cols, nb_players, self.actions)
+            self.agents[player] = agent_IA(self.DQN_IA_network, player, nb_rows, nb_cols, nb_players, self.state_size, self.action_size)
             self.IA_agents_present += 1
         else:
-            self.agents[player] = agent_free_rider(player, nb_rows, nb_cols, nb_players, self.actions)
+            self.agents[player] = agent_FR(self.DQN_FR_network, player, nb_rows, nb_cols, nb_players, self.state_size, self.action_size)
         
         #Data structures for rewards calculations
         #rewards = scores_t - scores_tMinus1
         self.scores_tMinus1 = np.zeros(nb_players)
         self.scores_t = np.zeros(nb_players)
         self.rewards = np.zeros(nb_players)
+        # To shift scores once per timestep (= every player moved), use a dirty_counter
+        # This dirty_counter makes sure that every player received an update with the current scores
+        # before updating the scores once more.
+        self.dirty_counter = 0
         
         
-
     def add_player(self, player):
         """Use the same agent for multiple players."""
         self.player.add(player)
         if self.IA_agents_present < self.IA_agents_allowed:
-            self.agents[player] = agent_IA(player, self.nb_rows, self.nb_cols, self.nb_players, self.actions)
+            self.agents[player] = agent_IA(self.DQN_IA_network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size)
             self.IA_agents_present += 1
         else:
-            self.agents[player] = agent_free_rider(player, self.nb_rows, self.nb_cols, self.nb_players, self.actions)
+            self.agents[player] = agent_FR(self.DQN_FR_network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size)
+
 
     def register_action(self, row, column, orientation, player):
         """Register action played in game.
@@ -89,15 +108,21 @@ class Agent_controller:
         """
         pass
     
-    def observe(self, scores, terminal):
-        # Update scores
-        self.scores_tMinus1 = self.scores_t
-        self.scores_t = scores
-        self.rewards = self.scores_t - self.scores_tMinus1
+    
+    def observe(self, player, players, apples, scores, terminal):
+        if self.dirty_counter == 0:
+            # Update scores only once per timestep
+            self.scores_tMinus1 = self.scores_t
+            self.scores_t = scores
+            self.rewards = self.scores_t - self.scores_tMinus1
         
-        #For all players controlled by this agent controller, push updates
-        for p in self.player:
-            self.agents[p].observe(self.rewards, terminal)
+        #Push updates
+        self.agents[player].observe(self.rewards, players, apples, terminal)
+        self.dirty_counter += 1
+        
+        if self.dirty_counter == len(self.player):
+            #All observations have arrived for this timestep. Reset dirty_counter
+            self.dirty_counter = 0
 
     
     def next_action(self, player, players, apples):
@@ -109,18 +134,16 @@ class Agent_controller:
         logger.info("Computing next move (grid={}x{}, player={})"\
                 .format(self.nb_rows, self.nb_cols, self.player))
         
-        return self.agents[player].next_action(players,apples)
+        action_index = self.agents[player].next_action(players,apples)
+        return self.actions[action_index]
         
 
     def end_game(self):
         self.ended = True
         # store models
-        for p in self.player:
-            self.agents[p].save_model(directory="../models/")
-    
+        self.DQN_IA_network.save_model(model_filename="models/DQN_IA_MODEL.h5")
+        self.DQN_FR_network.save_model(model_filename="models/DQN_FR_MODEL.h5")
 
-
-            
 
 
 ## MAIN EVENT LOOP
@@ -170,11 +193,11 @@ async def handler(websocket, path):
             elif msg["type"] == "action":
                 # An action has been played
                 # Let agent have knowledge of new scores at the beginning of new time step
-                if msg["nextplayer"] == 1 and msg["receiver"] == min(games[game].player):
+                if msg["nextplayer"] == 1:
                     scores = np.zeros(len(msg["players"]))
                     for j in range(0,len(msg["players"])):
                         scores[j] = msg["players"][j]["score"]
-                    games[game].observe(scores, False)
+                    games[game].observe(msg["receiver"], msg["players"], msg["apples"], scores, False)
             
                 if msg["nextplayer"] in games[game].player and msg["nextplayer"] == msg["receiver"]:
                     # Compute your move

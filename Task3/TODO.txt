@@ -1,6 +1,5 @@
 
-
+* Tune replay parameters! (batch_size and replay_frequency in Keras_DQNAgent.py)
 * Network Design
-* Save / reuse models
 * Metrics!
 
