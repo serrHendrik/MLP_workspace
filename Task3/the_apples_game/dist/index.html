@@ -75,7 +75,7 @@
         </div>
       </div>
     </div>
-  <script type="text/javascript" src="app-06f0c2ec3b66a9963e60.bundle.js"></script></body>
+  <script type="text/javascript" src="app-5ef7e4bc60f27bb79243.bundle.js"></script></body>
   <script>
   var toInput = function(el) { // note, its html element
     if ('agent' !== el.value) return;
@@ -99,10 +99,10 @@
         .stop('Scoreboard')
         .stop('Grid')
         .start('Loader');
-  }
 
-  window.gameOver = () => {};
-  // window.gameOver = restart; // automatically start a new game on game over
+      window.gameOver = () => {};
+      // window.gameOver = restart; // automatically start a new game on game over
+  }
 
   $(document).ready(function(){
     $("#agents_input").on("click", ".add-more", function(e){
