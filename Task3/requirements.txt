@@ -1,3 +1,4 @@
 tensorforce
 keras
 websockets
+tensorflow
