@@ -53,11 +53,7 @@ class agent_abstract(ABC):
     
     def observe(self, rewards, players, apples, done):
         next_state = self.calc_state(players,apples)
-        #subjective_reward = self.calc_subjective_reward(rewards)
         subjective_reward = rewards[self.player - 1]
-        
-        #new_DQNAgent
-        #self.network.observe(reward=subj_reward, terminal=done)
         
         #Keras_DQNAgent
         if self.dirty_bit == True:
