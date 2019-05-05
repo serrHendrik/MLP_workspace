@@ -19,13 +19,12 @@ class agent_abstract(ABC):
         self.action_size = action_size
         self.state_size = state_size
         
-        #self.network = new_DQNAgent(nb_actions=len(actions))
         self.network = network
         
         #retain last act information to push to memory when result of action is observed
         # When dirty_bit is True, the agent must first receive an observation before acting again
         self.last_action = 0
-        self.last_state = np.zeros((1,15*15))
+        self.last_state = np.zeros((15,15))
         self.dirty_bit = False
         
         
@@ -35,8 +34,8 @@ class agent_abstract(ABC):
         state = self.calc_state(players,apples)
         
         #Feed to network
-        state = np.reshape(state,[1,self.state_size])
-        action_index = self.network.act(state = state)
+        q_values = self.network.act(state = state)
+        action_index = self.q_values_to_action(q_values)
         
         #Store action and state and set dirty bit
         if self.dirty_bit == False:
@@ -54,7 +53,8 @@ class agent_abstract(ABC):
     
     def observe(self, rewards, players, apples, done):
         next_state = self.calc_state(players,apples)
-        subjective_reward = self.calc_subjective_reward(rewards)
+        #subjective_reward = self.calc_subjective_reward(rewards)
+        subjective_reward = rewards[self.player - 1]
         
         #new_DQNAgent
         #self.network.observe(reward=subj_reward, terminal=done)
@@ -62,7 +62,7 @@ class agent_abstract(ABC):
         #Keras_DQNAgent
         if self.dirty_bit == True:
             self.network.remember(state=self.last_state,action=self.last_action,reward=subjective_reward,next_state=next_state,done=done)
-            self.dirty_bit =  False
+            self.dirty_bit = False
         else:
             print("\n\nERROR: dirty_bit is False! An action is expected before a new observation can be made.\n\n")  
     
@@ -132,3 +132,6 @@ class agent_abstract(ABC):
     def calc_subjective_reward(self, rewards):
         pass
 
+    @abstractmethod
+    def q_values_to_action(self, q_values):
+        pass

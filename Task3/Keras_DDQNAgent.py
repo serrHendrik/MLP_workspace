@@ -14,19 +14,27 @@ import numpy as np
 import random
 import os
 import csv
-from keras.models import Sequential
 from keras.models import load_model
-from keras.layers import Dense
-from keras.optimizers import Adam
 
-# Deep Q-learning Agent
-class Keras_DQNAgent:
+from custom_DRL_models import cnn_model_v1, cnn_model_v2
+
+"""
+# Double Deep Q-learning Agent
+This model uses two networks. 
+While training (replay), the weights of the Primary are updated using Q-values of the Secondary.
+For predicting actions, the Primary is used.
+
+"""
+class Keras_DDQNAgent:
     
     def __init__(self, state_size, action_size, model_name):
+        self.state_shape = (15,15)
         self.state_size = state_size
         self.action_size = action_size
         self.model_name = model_name
-        self.model_filename = model_name + ".h5"
+        self.model1_filename = model_name + "_PRIMARY.h5"
+        self.model2_filename = model_name + "_SECONDARY.h5"
+        self.update_model_counter = 0
         self.loss_per_minibatch_filename = model_name + "_loss_per_minibatch.csv"
         self.loss_total_filename = model_name + "_loss_total.csv"
         
@@ -45,8 +53,11 @@ class Keras_DQNAgent:
         
         
         
-        if os.path.isfile(self.model_filename) == False:
-            self.model = self._build_model()
+        
+        if os.path.isfile(self.model1_filename) == False:
+            # Init models AND files to store progress of loss function corresponding to this model
+            self.model1 = self._build_model()
+            self.model2 = self._build_model()
             with open(self.loss_per_minibatch_filename, 'w',newline='') as wf:
                 writer = csv.writer(wf)
                 l = ["Loss function for " + self.model_name + " calculated per " + str(self.batch_size) + " samples."]
@@ -59,20 +70,17 @@ class Keras_DQNAgent:
             wf.close()
             
         else:
-            self.model = load_model(self.model_filename)
+            self.model1 = load_model(self.model1_filename)
+            self.model2 = load_model(self.model2_filename)
         
     def _build_model(self):
-        # Neural Net for Deep-Q learning Model
-        model = Sequential()
-        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(24, activation='relu'))
-        model.add(Dense(self.action_size, activation='linear'))
-        model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
-        return model
+        return cnn_model_v2(input_shape=(15,15,1), action_size = self.action_size)
     
     def remember(self, state, action, reward, next_state, done):
-        state = np.reshape(state,[1,self.state_size])
-        next_state = np.reshape(next_state,[1,self.state_size])
+        #state = np.reshape(state,[1,self.state_size])
+        #next_state = np.reshape(next_state,[1,self.state_size])
+        state = self.reshape_state(state)
+        next_state = self.reshape_state(next_state)
         self.memory.append((state, action, reward, next_state, done))
         
         #Check if its time to do a replay
@@ -85,33 +93,50 @@ class Keras_DQNAgent:
     def act(self, state):
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.action_size)
-        state = np.reshape(state,[1,self.state_size])
-        act_values = self.model.predict(state)
-        return np.argmax(act_values[0])  # returns action
+        state = self.reshape_state(state)
+        act_values = self.model1.predict(state)
+        return act_values[0]  # returns q-values Q(state,.)
     
     def replay(self):
         minibatch = random.sample(self.memory, self.batch_size)
         minibatch_loss = 0.0
         for state, action, reward, next_state, done in minibatch:
-            target = reward
+            target_1 = reward
             if not done:
-              target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
-            target_f = self.model.predict(state)
+                next_argmax_1 = np.argmax(self.model1.predict(next_state)[0])
+                next_Q_2 = self.model2.predict(next_state)[0][next_argmax_1]
+                target_1 = reward + self.gamma * next_Q_2
+            target_f = self.model1.predict(state)
             prediction = target_f[0][action]
-            target_f[0][action] = target
-            self.model.fit(state, target_f, epochs=1, verbose=0)
+            target_f[0][action] = target_1
+            self.model1.fit(state, target_f, epochs=1, verbose=0)
             
-            minibatch_loss += (target - prediction) ** 2
-            #self.episode_steps += 1
-            
+            minibatch_loss += (target_1 - prediction) ** 2
+            self.update_model_counter += 1
+        
+        # update loss
         minibatch_loss /= float(self.batch_size)   
         self.episode_loss_per_minibatch.append([minibatch_loss])
+        
+        # update model
+        if self.update_model_counter > 1000:
+            self.update_models()
+            self.update_model_counter = 0
+        
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
     
-  
+    def reshape_state(self, state):
+        return np.reshape(state,(1,15,15,1))
+        
+    def update_models(self):
+        self.model1.save(self.model1_filename)
+        self.model2 = load_model(self.model1_filename)
+    
+    
     def save_model(self):
-        self.model.save(self.model_filename)
+        self.model1.save(self.model1_filename)
+        self.model2.save(self.model2_filename)
 
     def save_loss(self):
         if (len(self.episode_loss_per_minibatch) > 0):
@@ -130,6 +155,7 @@ class Keras_DQNAgent:
             wf.close()           
     
     def end_episode(self):
+        self.update_models()
         self.save_model()
         self.save_loss()
     
