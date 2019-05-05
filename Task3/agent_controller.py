@@ -12,17 +12,60 @@ import logging
 import asyncio
 import websockets
 import json
-import os
 import numpy as np
+import csv
+import datetime
+import tensorflow as tf
+
 from agent_IA import agent_IA
 from agent_FR import agent_FR
 from Keras_DQNAgent import Keras_DQNAgent
+from Keras_DDQNAgent import Keras_DDQNAgent
 
 logger = logging.getLogger(__name__)
 games = {}
 agentclass = None
 
+#Statistics
+now = datetime.datetime.now()
+stats_file = "statistics/stats_" + now.strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
+header_written = False
+def write_header(agents_IA, agents_FR):
+    if header_written == False:
+        with open(stats_file, 'w',newline='') as wf:
+            writer = csv.writer(wf)
+            l1 = ["IA" for _ in agents_IA]
+            l2 = ["FR" for _ in agents_FR]
+            l3 = ["","IA AVERAGE", "FR AVERAGE"]
+            l = l1 + l2 + l3
+            writer.writerow(l)
+        wf.close()
+
+def set_headers_written():
+    global header_written
+    header_written = True
+
+def write_scores(scores_agents_IA, scores_agents_FR):
+    #never modify header again
+    set_headers_written()
+    
+    #row = scores per agent type and averages per type
+    scores = scores_agents_IA + scores_agents_FR
+    IA_av = -1
+    FR_av = -1
+    if len(scores_agents_IA) > 0:
+        IA_av = float(sum(scores_agents_IA)) / len(scores_agents_IA)
+    if len(scores_agents_FR) > 0:
+        FR_av = float(sum(scores_agents_FR)) / len(scores_agents_FR)
+    row = scores + ["", IA_av, FR_av]
+    with open(stats_file, 'a',newline='') as wf:
+        writer = csv.writer(wf)
+        writer.writerow(row)
+    wf.close()  
+
+
 """
+Controller of all agents.
 
 """
 class Agent_controller:
@@ -42,6 +85,13 @@ class Agent_controller:
         :param nb_rows: Rows in grid
         :param nb_cols: Columns in grid
         """
+        
+        #Handle gpu issues
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
+        config.log_device_placement = True  # to log device placement (on which device the operation ran)
+        tf.Session(config=config)
+        
         self.player = {player}
         self.ended = False
         self.nb_rows = nb_rows
@@ -55,28 +105,37 @@ class Agent_controller:
         self.action_size = len(self.actions)
         
         # Total number of inequity adverse agents
-        self.IA_agents_allowed = 2
+        self.IA_agents_allowed = 0
         self.IA_agents_present = 0
         
-        
+        """
+        #DQN
         #DQN network for Inequity Adverse (IA) agents!
-        IA_model_filename = "models/DQN_IA_MODEL.h5"
-        if os.path.isfile(IA_model_filename) == False:
-            IA_model_filename = None
-        self.DQN_IA_network = Keras_DQNAgent(state_size = self.state_size, action_size = self.action_size, model_filename=IA_model_filename)
+        IA_model_name = "models/DQN_IA_MODEL"
+        self.IA_network = Keras_DQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=IA_model_name)
         #DQN network for Free Rider agents!
-        FR_model_filename = "models/DQN_FR_MODEL.h5"
-        if os.path.isfile(FR_model_filename) == False:
-            FR_model_filename = None
-        self.DQN_FR_network = Keras_DQNAgent(state_size = self.state_size, action_size = self.action_size, model_filename=FR_model_filename)
+        FR_model_name = "models/DQN_FR_MODEL"
+        self.FR_network = Keras_DQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=FR_model_name)
+        """
         
-        #Keep one agent per player
+        #DDQN
+        IA_model_name = "models/DDQN_IA_MODEL"
+        self.IA_network = Keras_DDQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=IA_model_name)
+        #DQN network for Free Rider agents!
+        FR_model_name = "models/DDQN_FR_MODEL"
+        self.FR_network = Keras_DDQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=FR_model_name)
+        
+        #Keep one agent per player and remember which kind of agent this is
         self.agents = dict()
+        self.agents_IA = list()
+        self.agents_FR = list()
         if self.IA_agents_present < self.IA_agents_allowed:
-            self.agents[player] = agent_IA(self.DQN_IA_network, player, nb_rows, nb_cols, nb_players, self.state_size, self.action_size)
+            self.agents[player] = agent_IA(self.IA_network, player, nb_rows, nb_cols, nb_players, self.state_size, self.action_size)
             self.IA_agents_present += 1
+            self.agents_IA.append(player)
         else:
-            self.agents[player] = agent_FR(self.DQN_FR_network, player, nb_rows, nb_cols, nb_players, self.state_size, self.action_size)
+            self.agents[player] = agent_FR(self.FR_network, player, nb_rows, nb_cols, nb_players, self.state_size, self.action_size)
+            self.agents_FR.append(player)
         
         #Data structures for rewards calculations
         #rewards = scores_t - scores_tMinus1
@@ -88,16 +147,23 @@ class Agent_controller:
         # before updating the scores once more.
         self.dirty_counter = 0
         
+        #Statistics
+        write_header(self.agents_IA, self.agents_FR)
+        
         
     def add_player(self, player):
         """Use the same agent for multiple players."""
         self.player.add(player)
         if self.IA_agents_present < self.IA_agents_allowed:
-            self.agents[player] = agent_IA(self.DQN_IA_network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size)
+            self.agents[player] = agent_IA(self.IA_network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size)
             self.IA_agents_present += 1
+            self.agents_IA.append(player)
         else:
-            self.agents[player] = agent_FR(self.DQN_FR_network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size)
-
+            self.agents[player] = agent_FR(self.FR_network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size)
+            self.agents_FR.append(player)
+            
+        write_header(self.agents_IA, self.agents_FR)
+        
 
     def register_action(self, row, column, orientation, player):
         """Register action played in game.
@@ -139,10 +205,22 @@ class Agent_controller:
         
 
     def end_game(self):
-        self.ended = True
-        # store models
-        self.DQN_IA_network.save_model(model_filename="models/DQN_IA_MODEL.h5")
-        self.DQN_FR_network.save_model(model_filename="models/DQN_FR_MODEL.h5")
+        if self.ended == False:
+            self.ended = True
+            
+            # store models
+            self.IA_network.end_episode()
+            self.FR_network.end_episode()
+            
+            # save scores
+            scores_agents_IA = list()
+            scores_agents_FR = list()
+            for p in self.agents_IA:
+                scores_agents_IA.append(self.scores_t[p-1])
+            for p in self.agents_FR:
+                scores_agents_FR.append(self.scores_t[p-1])   
+            write_scores(scores_agents_IA, scores_agents_FR)
+            
 
 
 
