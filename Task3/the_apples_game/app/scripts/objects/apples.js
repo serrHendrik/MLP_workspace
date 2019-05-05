@@ -111,6 +111,7 @@ export default class Apples extends Phaser.GameObjects.Group {
    *
    *  @public
    *  @returns {boolean} Whether an apple updated or not.
+   *  case 2: P = 0.02 default:P = 0.05
    */
   update() {
     for (var x = 0; x < WIDTH; x++) {
@@ -128,10 +129,10 @@ export default class Apples extends Phaser.GameObjects.Group {
           P = 0.005;
           break;
         case 2:
-          P = 0.02;
+          P = 0.0;
           break;
         default:
-          P = 0.05;
+          P = 0.0;
         }
         if (Math.random() < P) {
           let apple = this.apples[y][x];

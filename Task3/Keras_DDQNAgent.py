@@ -16,7 +16,7 @@ import os
 import csv
 from keras.models import load_model
 
-from custom_DRL_models import cnn_model_v1, cnn_model_v2
+from custom_DRL_models import default_model, cnn_model_v1, cnn_model_v2
 
 """
 # Double Deep Q-learning Agent
@@ -33,7 +33,7 @@ class Keras_DDQNAgent:
         self.action_size = action_size
         self.model_name = model_name
         self.model1_filename = model_name + "_PRIMARY.h5"
-        self.model2_filename = model_name + "_SECONDARY.h5"
+        #self.model2_filename = model_name + "_SECONDARY.h5"
         self.update_model_counter = 0
         self.loss_per_minibatch_filename = model_name + "_loss_per_minibatch.csv"
         self.loss_total_filename = model_name + "_loss_total.csv"
@@ -43,7 +43,7 @@ class Keras_DDQNAgent:
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 0.95
         self.learning_rate = 0.001
         #if replay_counter reaches replay_frequency, do a replay
         self.replay_frequency = 50
@@ -71,10 +71,11 @@ class Keras_DDQNAgent:
             
         else:
             self.model1 = load_model(self.model1_filename)
-            self.model2 = load_model(self.model2_filename)
+            self.model2 = load_model(self.model1_filename)
         
     def _build_model(self):
-        return cnn_model_v2(input_shape=(15,15,1), action_size = self.action_size)
+        return default_model(input_shape=(15,15,1), action_size=self.action_size)
+        #return cnn_model_v2(input_shape=(15,15,1), action_size = self.action_size)
     
     def remember(self, state, action, reward, next_state, done):
         #state = np.reshape(state,[1,self.state_size])
@@ -91,8 +92,8 @@ class Keras_DDQNAgent:
         
         
     def act(self, state):
-        if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
+        #if np.random.rand() <= self.epsilon:
+        #    return random.randrange(self.action_size)
         state = self.reshape_state(state)
         act_values = self.model1.predict(state)
         return act_values[0]  # returns q-values Q(state,.)
@@ -136,7 +137,7 @@ class Keras_DDQNAgent:
     
     def save_model(self):
         self.model1.save(self.model1_filename)
-        self.model2.save(self.model2_filename)
+        #self.model2.save(self.model2_filename)
 
     def save_loss(self):
         if (len(self.episode_loss_per_minibatch) > 0):
