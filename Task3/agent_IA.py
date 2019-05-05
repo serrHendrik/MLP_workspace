@@ -5,7 +5,6 @@ Created on Mon Apr 29 14:47:57 2019
 
 """
 
-import random
 import numpy as np
 from agent_abstract import agent_abstract
 
@@ -82,7 +81,7 @@ class agent_IA(agent_abstract):
         
         #With prob_envy, choose action with highest Q-value
         #When guilt overwhelms, abstain from eating apples
-        if random.rand() <= prob_envy:
+        if np.random.rand() <= prob_envy:
             action_index = np.argmax(q_values)
         else:
             action_index = np.argmin(q_values)

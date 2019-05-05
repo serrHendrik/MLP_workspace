@@ -36,7 +36,7 @@ def write_header(agents_IA, agents_FR):
             writer = csv.writer(wf)
             l1 = ["IA" for _ in agents_IA]
             l2 = ["FR" for _ in agents_FR]
-            l3 = ["","IA AVERAGE", "FR AVERAGE"]
+            l3 = ["","IA MEAN", "IA VARIANCE", "FR MEAN", "FR VARIANCE"]
             l = l1 + l2 + l3
             writer.writerow(l)
         wf.close()
@@ -51,13 +51,17 @@ def write_scores(scores_agents_IA, scores_agents_FR):
     
     #row = scores per agent type and averages per type
     scores = scores_agents_IA + scores_agents_FR
-    IA_av = -1
-    FR_av = -1
+    IA_mean = -1
+    IA_var = -1
+    FR_mean = -1
+    FR_var = -1
     if len(scores_agents_IA) > 0:
-        IA_av = float(sum(scores_agents_IA)) / len(scores_agents_IA)
+        IA_mean = float(sum(scores_agents_IA)) / len(scores_agents_IA)
+        IA_var = np.var(scores_agents_IA)
     if len(scores_agents_FR) > 0:
-        FR_av = float(sum(scores_agents_FR)) / len(scores_agents_FR)
-    row = scores + ["", IA_av, FR_av]
+        FR_mean = float(sum(scores_agents_FR)) / len(scores_agents_FR)
+        FR_var = np.var(scores_agents_FR)
+    row = scores + ["", IA_mean, IA_var, FR_mean, FR_var]
     with open(stats_file, 'a',newline='') as wf:
         writer = csv.writer(wf)
         writer.writerow(row)
@@ -105,7 +109,7 @@ class Agent_controller:
         self.action_size = len(self.actions)
         
         # Total number of inequity adverse agents
-        self.IA_agents_allowed = 0
+        self.IA_agents_allowed = 5
         self.IA_agents_present = 0
         
         """
@@ -119,10 +123,10 @@ class Agent_controller:
         """
         
         #DDQN
-        IA_model_name = "models/DDQN_IA_MODEL"
+        IA_model_name = "models/DDQN_MODEL"
         self.IA_network = Keras_DDQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=IA_model_name)
         #DQN network for Free Rider agents!
-        FR_model_name = "models/DDQN_FR_MODEL"
+        FR_model_name = "models/DDQN_MODEL"
         self.FR_network = Keras_DDQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=FR_model_name)
         
         #Keep one agent per player and remember which kind of agent this is

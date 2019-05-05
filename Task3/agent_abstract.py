@@ -88,7 +88,7 @@ class agent_abstract(ABC):
             inp_y = apple_y - player_y + 7 - 1
             #print("inp_x and inp_y: " + str(inp_x) + " " + str(inp_y))
             state[inp_y,inp_x] = 1.0
-        
+        """
         #fill network ipnut with players on third channel
         for p in players:
             p_x, p_y = p["location"]
@@ -108,7 +108,7 @@ class agent_abstract(ABC):
                 inp_x = p_x - player_x + 7 - 1
                 inp_y = p_y - player_y + 7 - 1
                 state[inp_y,inp_x] = 0.5
-        
+        """
         # Exploit symmetry to help network train better
         # Rotate state so that player orientation is up
         orientation = players[self.player-1]["orientation"]

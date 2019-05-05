@@ -38,15 +38,15 @@ class Keras_DDQNAgent:
         self.loss_per_minibatch_filename = model_name + "_loss_per_minibatch.csv"
         self.loss_total_filename = model_name + "_loss_total.csv"
         
-        self.memory = deque(maxlen=2000)
-        self.batch_size = 32
+        self.memory = deque(maxlen=500)
+        self.batch_size = 500
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.95
         self.learning_rate = 0.001
         #if replay_counter reaches replay_frequency, do a replay
-        self.replay_frequency = 50
+        self.replay_frequency = 500
         self.replay_counter = 0
         self.episode_loss_total = 0.0
         self.episode_loss_per_minibatch = list()
@@ -99,25 +99,26 @@ class Keras_DDQNAgent:
         return act_values[0]  # returns q-values Q(state,.)
     
     def replay(self):
-        minibatch = random.sample(self.memory, self.batch_size)
-        minibatch_loss = 0.0
-        for state, action, reward, next_state, done in minibatch:
-            target_1 = reward
-            if not done:
-                next_argmax_1 = np.argmax(self.model1.predict(next_state)[0])
-                next_Q_2 = self.model2.predict(next_state)[0][next_argmax_1]
-                target_1 = reward + self.gamma * next_Q_2
-            target_f = self.model1.predict(state)
-            prediction = target_f[0][action]
-            target_f[0][action] = target_1
-            self.model1.fit(state, target_f, epochs=1, verbose=0)
+        for _ in range(0,2):
+            minibatch = random.sample(self.memory, self.batch_size)
+            minibatch_loss = 0.0
+            for state, action, reward, next_state, done in minibatch:
+                target_1 = reward
+                if not done:
+                    next_argmax_1 = np.argmax(self.model1.predict(next_state)[0])
+                    next_Q_2 = self.model2.predict(next_state)[0][next_argmax_1]
+                    target_1 = reward + self.gamma * next_Q_2
+                target_f = self.model1.predict(state)
+                prediction = target_f[0][action]
+                target_f[0][action] = target_1
+                self.model1.fit(state, target_f, epochs=1, verbose=0)
+                
+                minibatch_loss += (target_1 - prediction) ** 2
+                self.update_model_counter += 1
             
-            minibatch_loss += (target_1 - prediction) ** 2
-            self.update_model_counter += 1
-        
-        # update loss
-        minibatch_loss /= float(self.batch_size)   
-        self.episode_loss_per_minibatch.append([minibatch_loss])
+            # update loss
+            minibatch_loss /= float(self.batch_size)   
+            self.episode_loss_per_minibatch.append([minibatch_loss])
         
         # update model
         if self.update_model_counter > 1000:
