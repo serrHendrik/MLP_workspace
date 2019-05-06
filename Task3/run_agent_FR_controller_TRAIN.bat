@@ -1,0 +1,1 @@
+python agent_controller.py --type FR 8082

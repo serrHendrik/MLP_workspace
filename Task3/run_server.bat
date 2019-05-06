@@ -1,2 +1,2 @@
-python the_apples_game/server.py 8080
-cmd /k
+cd the_apples_game
+python server.py 8080

@@ -1,13 +1,12 @@
-start "SERVER" run_server.bat
-start "AGENT CONTROLLER" run_agent_controller.bat
+start "AGENT FR CONTROLLER" run_agent_FR_controller_TRAIN.bat
 pause
 cd the_apples_game
-SET episodes=40
-SET agent=ws://localhost:8081
-SET apples=20
+SET episodes=2
+SET agent=ws://127.0.0.1:8082
+SET apples=10
 @for /l %%x in (1, 1, %episodes%) do @(
 @echo episode %%x / %episodes%
-@node play.js %agent% %agent% %agent% %agent% %agent% %apples%>NUL)
+@node play.js %agent% %agent% %agent% %agent% %agent% %agent% %apples%>NUL)
 
 cd ..
 

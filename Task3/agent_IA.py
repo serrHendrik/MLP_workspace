@@ -13,9 +13,9 @@ The Agent_IA is Inequity Averse (IA), both advantageous (AIA) and disadvantageou
 """
 class agent_IA(agent_abstract):
     
-    def __init__(self, network, player, nb_rows, nb_cols, nb_players, state_size, action_size):
+    def __init__(self, network, player, nb_rows, nb_cols, nb_players, state_size, action_size, play_mode):
         print("\nPlayer " + str(player) + " is an INEQUITY ADVERSE AGENT\n")
-        super().__init__(network, player, nb_rows, nb_cols, nb_players, state_size, action_size)
+        super().__init__(network, player, nb_rows, nb_cols, nb_players, state_size, action_size, play_mode)
         #e values and subjective rewards as defined in (Hughes, Leibo, Tuyls et al. 2018)
         self.g = 0.9    #gamma used to calculate e-value
         self.l = 1      #lamda used to calculate e-value

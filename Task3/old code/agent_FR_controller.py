@@ -17,26 +17,23 @@ import csv
 import datetime
 import tensorflow as tf
 
-from agent_IA import agent_IA
 from agent_FR import agent_FR
 from Keras_DDQNAgent import Keras_DDQNAgent
 
 logger = logging.getLogger(__name__)
 games = {}
-stats_file = None
 agentclass = None
-agentcontroller = None
-agent_type = None
-play_mode = None
 
 #Statistics
+now = datetime.datetime.now()
+stats_file = "statistics/stats_FR_controller_session_" + now.strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
 header_written = False
 def write_header(agents):
     if header_written == False:
         with open(stats_file, 'w',newline='') as wf:
             writer = csv.writer(wf)
-            l1 = [agent_type for _ in agents]
-            l2 = ["","MEAN", "VARIANCE"]
+            l1 = ["FR" for _ in agents]
+            l2 = ["","FR MEAN", "FR VARIANCE"]
             l = l1 + l2
             writer.writerow(l)
         wf.close()
@@ -62,10 +59,10 @@ def write_scores(scores_agents):
 
 
 """
-Controller of all agents of agent_type
+Controller of all Inequity Averse (IA) agents.
 
 """
-class Agent_Controller:
+class Agent_FR_Controller:
     """
     A Agent object should implement the following methods:
     - __init__
@@ -107,7 +104,7 @@ class Agent_Controller:
 
         #Keep one agent per player
         self.agents = dict()
-        self.agents[player] = agentclass(self.network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size, play_mode)
+        self.agents[player] = agent_FR(self.network, player, nb_rows, nb_cols, nb_players, self.state_size, self.action_size)
 
 
         
@@ -128,7 +125,7 @@ class Agent_Controller:
     def add_player(self, player):
         """Use the same agent for multiple players."""
         self.player_list.append(player)
-        self.agents[player] = agentclass(self.network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size, play_mode)
+        self.agents[player] = agent_FR(self.network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size)
         
         #update header for this session
         write_header(self.player_list)
@@ -213,10 +210,10 @@ async def handler(websocket, path):
                     games[msg["game"]].add_player(msg["player"])
                 else:
                     nb_cols, nb_rows = msg["grid"]
-                    games[msg["game"]] = agentcontroller(msg["player"],
-                                                        nb_rows,
-                                                        nb_cols,
-                                                        len(msg["players"]))
+                    games[msg["game"]] = agentclass(msg["player"],
+                                                    nb_rows,
+                                                    nb_cols,
+                                                    len(msg["players"]))
                 
                 if msg["player"] == 1:
                     # Start the game
@@ -283,40 +280,17 @@ def start_server(port):
 ## COMMAND LINE INTERFACE
 
 def main(argv=None):
-    global agentcontroller
     global agentclass
-    global agent_type
-    global play_mode
-    global stats_file
     parser = argparse.ArgumentParser(description='Start agent to play the Apples game')
     parser.add_argument('--verbose', '-v', action='count', default=0, help='Verbose output')
     parser.add_argument('--quiet', '-q', action='count', default=0, help='Quiet output')
     parser.add_argument('port', metavar='PORT', type=int, help='Port to use for server')
-    parser.add_argument('--type','-t', default="IA", help='agent type is either \'FR\' (Free Rider) or \'IA\' (Inequity Averse, default)')
-    parser.add_argument('--play','-p', action='count', default=0, help='In play-mode, the models will not train while playing. As FR and IA use the same model, play-mode is recommended when combining both types of players in a single game.')
     args = parser.parse_args(argv)
 
     logger.setLevel(max(logging.INFO - 10 * (args.verbose - args.quiet), logging.DEBUG))
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
-    agentcontroller = Agent_Controller
-    
-    if args.type == "FR":
-        agent_type = "FR"
-        agentclass = agent_FR
-    else:
-        agent_type = "IA"
-        agentclass = agent_IA
-    
-    if args.play == 0:
-        play_mode = False
-    else:
-        play_mode = True
-    
-    #Init statistics file
-    now = datetime.datetime.now()
-    stats_file = "statistics/stats_" + agent_type + "_session_" + now.strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
-    
+    agentclass = Agent_FR_Controller
     start_server(args.port)
 
 

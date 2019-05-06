@@ -16,9 +16,9 @@ The agent_FR is a Free Riding agent.
 """
 class agent_FR(agent_abstract):
     
-    def __init__(self, network, player, nb_rows, nb_cols, nb_players, state_size, action_size):
+    def __init__(self, network, player, nb_rows, nb_cols, nb_players, state_size, action_size, play_mode):
         print("\nPlayer " + str(player) + " is a FREE RIDER AGENT\n")
-        super().__init__(network, player, nb_rows, nb_cols, nb_players, state_size, action_size)
+        super().__init__(network, player, nb_rows, nb_cols, nb_players, state_size, action_size, play_mode)
     
     
     def calc_subjective_reward(self, rewards):  
