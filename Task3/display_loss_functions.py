@@ -35,7 +35,7 @@ def display_loss(MODEL_TYPE):
    #Display IA Loss
     loss_mb = read_file(files[MODEL_TYPE][0])
     loss_total = read_file(files[MODEL_TYPE][1])
-    title = MODEL_TYPE + " Loss function for " + AGENT_TYPE + " agents"
+    title = MODEL_TYPE + " Loss function" 
     
     f, (ax1, ax2) = plt.subplots(1, 2, figsize=(15,6))
     f.suptitle(title)

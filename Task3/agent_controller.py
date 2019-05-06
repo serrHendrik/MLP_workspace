@@ -36,7 +36,7 @@ def write_header(agents):
         with open(stats_file, 'w',newline='') as wf:
             writer = csv.writer(wf)
             l1 = [agent_type for _ in agents]
-            l2 = ["","MEAN", "VARIANCE"]
+            l2 = ["","TOTAL (SUM)", "MEAN", "VARIANCE", "TIMESTEPS TO GAME END"]
             l = l1 + l2
             writer.writerow(l)
         wf.close()
@@ -45,16 +45,17 @@ def set_headers_written():
     global header_written
     header_written = True
 
-def write_scores(scores_agents):
+def write_scores(scores_agents, timestep):
     #never modify header again
     set_headers_written()
-    
+    total = -1
     mean = -1
     var = -1
     if len(scores_agents) > 0:
-        mean = float(sum(scores_agents)) / len(scores_agents)
+        total = np.sum(scores_agents)
+        mean = np.mean(scores_agents)
         var = np.var(scores_agents)
-    row = scores_agents + ["", mean, var]
+    row = scores_agents + ["", total, mean, var, timestep]
     with open(stats_file, 'a',newline='') as wf:
         writer = csv.writer(wf)
         writer.writerow(row)
@@ -120,6 +121,7 @@ class Agent_Controller:
         # This dirty_counter makes sure that every player received an update with the current scores
         # before updating the scores once more.
         self.dirty_counter = 0
+        self.timestep = 0
         
         #Statistics
         write_header(self.player_list)
@@ -147,6 +149,7 @@ class Agent_Controller:
     def observe(self, player, players, apples, scores, terminal):
         if self.dirty_counter == 0:
             # Update scores only once per timestep
+            self.timestep += 1
             self.scores_tMinus1 = self.scores_t
             self.scores_t = scores
             self.rewards = self.scores_t - self.scores_tMinus1
@@ -185,7 +188,7 @@ class Agent_Controller:
             for p in self.player_list:
                 scores_agents.append(self.scores_t[p-1])
 
-            write_scores(scores_agents)
+            write_scores(scores_agents, self.timestep)
             
 
 
