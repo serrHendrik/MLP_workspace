@@ -69,11 +69,12 @@ class GreedyAgent:
         }
         return actions[r]
 
-    def end_game(self, scores):
-        with open("random_action_scores.csv", 'a', newline='') as wf:
-            writer = csv.writer(wf)
-            writer.writerow([scores])
-            wf.close()
+    def end_game(self, scores,receiver):
+        if receiver == 1:
+            with open("random_action_scores.csv", 'a', newline='') as wf:
+                writer = csv.writer(wf)
+                writer.writerow([scores])
+                wf.close()
         self.ended = True
 
     def observe(self, player, players, apples, scores, terminal):
@@ -149,7 +150,7 @@ async def handler(websocket, path):
 
             elif msg["type"] == "end":
                 # End the game
-                games[msg["game"]].end_game(scores)
+                games[msg["game"]].end_game(scores,msg["receiver"])
                 answer = None
             else:
                 logger.error("Unknown message type:\n{}".format(msg))
