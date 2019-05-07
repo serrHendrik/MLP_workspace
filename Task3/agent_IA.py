@@ -5,7 +5,6 @@ Created on Mon Apr 29 14:47:57 2019
 
 """
 
-import random
 import numpy as np
 from agent_abstract import agent_abstract
 
@@ -14,9 +13,9 @@ The Agent_IA is Inequity Averse (IA), both advantageous (AIA) and disadvantageou
 """
 class agent_IA(agent_abstract):
     
-    def __init__(self, network, player, nb_rows, nb_cols, nb_players, state_size, action_size):
+    def __init__(self, network, player, nb_rows, nb_cols, nb_players, state_size, action_size, play_mode):
         print("\nPlayer " + str(player) + " is an INEQUITY ADVERSE AGENT\n")
-        super().__init__(network, player, nb_rows, nb_cols, nb_players, state_size, action_size)
+        super().__init__(network, player, nb_rows, nb_cols, nb_players, state_size, action_size, play_mode)
         #e values and subjective rewards as defined in (Hughes, Leibo, Tuyls et al. 2018)
         self.g = 0.9    #gamma used to calculate e-value
         self.l = 1      #lamda used to calculate e-value
@@ -82,7 +81,7 @@ class agent_IA(agent_abstract):
         
         #With prob_envy, choose action with highest Q-value
         #When guilt overwhelms, abstain from eating apples
-        if random.rand() <= prob_envy:
+        if np.random.rand() <= prob_envy:
             action_index = np.argmax(q_values)
         else:
             action_index = np.argmin(q_values)

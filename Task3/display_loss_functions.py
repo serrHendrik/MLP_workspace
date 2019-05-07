@@ -12,21 +12,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #What do you want to see?
-AGENT_TYPE = "FR"
+#AGENT_TYPE = "IA"
 MODEL_TYPE = "DDQN"
 
 
 
 files = {
-    "IA": {
-        "DQN": ["models/DQN_IA_MODEL_loss_per_minibatch.csv", "models/DQN_IA_MODEL_loss_total.csv"],
-        "DDQN": ["models/DDQN_IA_MODEL_loss_per_minibatch.csv", "models/DDQN_IA_MODEL_loss_total.csv"]
-        },
-    
-    "FR": {
-        "DQN": ["models/DQN_FR_MODEL_loss_per_minibatch.csv", "models/DQN_FR_MODEL_loss_total.csv"],
-        "DDQN": ["models/DDQN_FR_MODEL_loss_per_minibatch.csv", "models/DDQN_FR_MODEL_loss_total.csv"]
-        }
+        "DQN": ["models/DQN_MODEL_loss_per_minibatch.csv", "models/DQN_MODEL_loss_total.csv"],
+        "DDQN": ["models/DDQN_MODEL_loss_per_minibatch.csv", "models/DDQN_MODEL_loss_total.csv"]
     }
 
 
@@ -38,11 +31,11 @@ def read_file(filename):
     loss = loss[1:,:].flatten().astype(np.float64)    
     return loss
 
-def display_loss(AGENT_TYPE, MODEL_TYPE):
+def display_loss(MODEL_TYPE):
    #Display IA Loss
-    loss_mb = read_file(files[AGENT_TYPE][MODEL_TYPE][0])
-    loss_total = read_file(files[AGENT_TYPE][MODEL_TYPE][1])
-    title = MODEL_TYPE + " Loss function for " + AGENT_TYPE + " agents"
+    loss_mb = read_file(files[MODEL_TYPE][0])
+    loss_total = read_file(files[MODEL_TYPE][1])
+    title = MODEL_TYPE + " Loss function" 
     
     f, (ax1, ax2) = plt.subplots(1, 2, figsize=(15,6))
     f.suptitle(title)
@@ -63,5 +56,5 @@ def display_loss(AGENT_TYPE, MODEL_TYPE):
 
 
 #Display loss
-display_loss(AGENT_TYPE, MODEL_TYPE)
+display_loss(MODEL_TYPE)
 
