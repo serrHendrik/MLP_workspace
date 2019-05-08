@@ -20,8 +20,8 @@ class agent_IA(agent_abstract):
         self.g = 0.9    #gamma used to calculate e-value
         self.l = 1      #lamda used to calculate e-value
         self.e_values = np.zeros(nb_players)
-        self.a = 4.0    #alpha used to calculate subjective rewards
-        self.b = 1.0   #beta used to calculate subjective rewards
+        self.a = 1.0    #alpha used to calculate subjective rewards
+        self.b = 0   #beta used to calculate subjective rewards
     
     
     
@@ -32,22 +32,23 @@ class agent_IA(agent_abstract):
         
     def calc_subjective_reward(self, rewards):   
         # Update e values
-        self.update_e_values(rewards)
+        #self.update_e_values(rewards)
         
         # Calculdate subjective reward
         player_index = self.player - 1
         envy = 0.0
-        guilt = 0.0
+        #guilt = 0.0
         for j in range(0,self.nb_players):
             if self.e_values[j] > self.e_values[player_index]:
                 envy += self.e_values[j] - self.e_values[player_index]
-            else:
-                guilt += self.e_values[player_index] - self.e_values[j]
+            #else:
+            #    guilt += self.e_values[player_index] - self.e_values[j]
         
         envy = envy * self.a / float(self.nb_players - 1)
-        guilt = guilt * self.b / float(self.nb_players - 1)
+        #guilt = guilt * self.b / float(self.nb_players - 1)
         
-        sr = rewards[player_index] - envy - guilt
+        #sr = rewards[player_index] - envy - guilt
+        sr = rewards[player_index] - envy
         return sr
     
     

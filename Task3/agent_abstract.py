@@ -8,6 +8,7 @@ Created on Fri May  3 15:12:26 2019
 An abstract base class agent for the Apples Game
 """
 import numpy as np
+import random
 from abc import ABC, abstractmethod
 
 class agent_abstract(ABC):
@@ -19,7 +20,6 @@ class agent_abstract(ABC):
         self.action_size = action_size
         self.state_size = state_size
         self.play_mode = play_mode
-        
         self.network = network
         
         #retain last act information to push to memory when result of action is observed
@@ -28,6 +28,10 @@ class agent_abstract(ABC):
         self.last_state = np.zeros((15,15))
         self.dirty_bit = False
         
+        #Exploration
+        self.epsilon = 1.0  # exploration rate
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.98
         
     
     
@@ -35,9 +39,24 @@ class agent_abstract(ABC):
         state = self.calc_state(players,apples)
         
         #Feed to network
-        q_values = self.network.act(state = state)
-        action_index = self.q_values_to_action(q_values)
-        
+        if np.random.rand() <= self.epsilon:
+            action_index = random.randrange(self.action_size)
+            
+            if self.epsilon > self.epsilon_min:
+                self.epsilon *= self.epsilon_decay
+            
+        else:
+            q_values = self.network.act(state = state)
+            if self.action_size == 3:
+                #Without firing, use guilt and envy to model Inequity Averse Behaviour
+                action_index = self.q_values_to_action(q_values)
+            elif self.action_size == 4:
+                # With firing, IA behaviour is modelled in the q-values
+                action_index = np.argmax(q_values)
+            else:
+                action_index = -1
+                print("Error in agent_abstract: next_action()")
+               
         if self.play_mode == False:
             #Store action and state and set dirty bit
             if self.dirty_bit == False:
@@ -56,9 +75,14 @@ class agent_abstract(ABC):
     def observe(self, rewards, players, apples, done):
         if self.play_mode == False:
             next_state = self.calc_state(players,apples)
-            subjective_reward = rewards[self.player - 1]
+            if self.action_size == 3:
+                #Without fire action
+                subjective_reward = rewards[self.player - 1]
+            elif self.action_size == 4:
+                #With fire action
+                subjective_reward = self.calc_subjective_reward(rewards)
             
-            #Keras_DQNAgent
+            # Store in memory
             if self.dirty_bit == True:
                 self.network.remember(state=self.last_state,action=self.last_action,reward=subjective_reward,next_state=next_state,done=done)
                 self.dirty_bit = False

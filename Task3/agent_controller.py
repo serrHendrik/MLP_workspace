@@ -99,11 +99,11 @@ class Agent_Controller:
         
         #define the mapping of the action scalar to a certain action
         #self.actions = ["left","move","right","fire"]
-        self.actions = ["left","move","right"]
+        self.actions = ["left","move","right", "fire"]
         self.action_size = len(self.actions)
         
         #DDQN
-        model_name = "models/DDQN_MODEL"
+        model_name = "models/DDQN_MODEL_4actions"
         self.network = Keras_DDQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=model_name)
 
         #Keep one agent per player
@@ -268,7 +268,7 @@ async def handler(websocket, path):
                 logger.error("Unknown message type:\n{}".format(msg))
 
             if answer is not None:
-                #print(answer)
+                print(answer)
                 await websocket.send(json.dumps(answer))
                 logger.info("> {}".format(answer))
     except websockets.exceptions.ConnectionClosed as err:
