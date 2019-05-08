@@ -104,7 +104,7 @@ fig = plt.figure(figsize=(10,5))
 ax1 = fig.add_subplot(121)
 ax1.grid()
 ax1.axis('equal')
-ax1.set_title("Player2 beliefs about Player1")
+ax1.set_title("Player2's beliefs about Player1")
 #plot contour of triangle
 corners = np.array([[1,0,0],
                     [0,1,0],
@@ -115,19 +115,34 @@ ax1.plot(corners_tf[:,0],corners_tf[:,1],linestyle='solid',color="black")
 
 # Plot history of probability of opponent's mixed strategy
 timeline = np.matmul(game.p2.beliefs_timeline,T)
-ax1.plot(timeline[:,0],timeline[:,1],'x-',color="darkred")
+edge = int(timeline.shape[0]/3)
+timeline1=  timeline[0:edge,:]
+timeline2=  timeline[edge:2*edge,:]
+timeline3=  timeline[2*edge:3*edge,:]
+ax1.plot(timeline1[:,0],timeline1[:,1],'x-',color="tomato")
+ax1.plot(timeline2[:,0],timeline2[:,1],'x-',color="red")
+ax1.plot(timeline3[:,0],timeline3[:,1],'x-',color="darkred")
 
 # Plot beliefs of player 1
 ax2 = fig.add_subplot(122)
 ax2.grid()
 ax2.axis('equal')
-ax2.set_title("Player1 beliefs about Player2")
+ax2.set_title("Player1's beliefs about Player2")
 #plot contour of triangle
 ax2.plot(corners_tf[:,0],corners_tf[:,1],linestyle='solid',color="black")
 
 # Plot history of probability of opponent's mixed strategy
 timeline = np.matmul(game.p1.beliefs_timeline,T)
-ax2.plot(timeline[:,0],timeline[:,1],'x-',color="darkred")
+edge = int(timeline.shape[0]/3)
+timeline1=  timeline[0:edge,:]
+timeline2=  timeline[edge:2*edge,:]
+timeline3=  timeline[2*edge:3*edge,:]
+ax2.plot(timeline1[:,0],timeline1[:,1],'x-',color="tomato")
+ax2.plot(timeline2[:,0],timeline2[:,1],'x-',color="red")
+ax2.plot(timeline3[:,0],timeline3[:,1],'x-',color="darkred")
 
-#plt.grid()
+ax1.axis('off')
+ax1.grid(b=None)
+ax2.axis('off')
+ax2.grid(b=None)
 plt.show()

@@ -73,8 +73,8 @@ plt.plot(corners_tf[:,0],corners_tf[:,1],linestyle='solid',color="black")
 # Plot history of probability of opponent's mixed strategy
 timeline = np.matmul(game.p1.beliefs_timeline,T)
 plt.plot(timeline[:,0],timeline[:,1],'x-',color="darkred")
-
-plt.grid()
+plt.axis('off')
+plt.grid(b=None)
 plt.show()
 
 
