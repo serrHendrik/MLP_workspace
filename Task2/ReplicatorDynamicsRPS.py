@@ -118,6 +118,6 @@ corners = np.array([[1,0,0],
                     [1,0,0]])
 corners_tf = np.matmul(corners,T);
 plt.plot(corners_tf[:,0],corners_tf[:,1],linestyle='solid',color="black")
-
-plt.grid()
+plt.axis('off')
+plt.grid(b=None)
 plt.show()
