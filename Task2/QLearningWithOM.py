@@ -130,4 +130,8 @@ timeline = np.matmul(game.p1.beliefs_timeline,T)
 ax2.plot(timeline[:,0],timeline[:,1],'x-',color="darkred")
 
 #plt.grid()
+ax1.axis('off')
+ax1.grid(b=None)
+ax2.axis('off')
+ax2.grid(b=None)
 plt.show()
