@@ -1,0 +1,2 @@
+https://medium.freecodecamp.org/an-introduction-to-policy-gradients-with-cartpole-and-doom-495b5ef2207f
+https://github.com/Alexander-H-Liu/Policy-Gradient-and-Actor-Critic-Keras
