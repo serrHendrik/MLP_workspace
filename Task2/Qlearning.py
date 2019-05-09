@@ -2,7 +2,7 @@
 """
 Created on Mon Apr 15 16:47:46 2019
 
-@author: emile
+
 """
 
 
@@ -19,9 +19,9 @@ reward_matrix = [[[0,0], [-1,1], [1,-1]],
                  [[1,-1], [0,0], [-1,1]],
                  [[-1,1], [1,-1], [0,0]]]
 #n = number of episodes played in a game
-n = 1000
+n = 10000
 #games: number of games played
-games = 10000
+games = 1000
 
 #statistics
 final_policy_counter = np.array([[0,0,0],[0,0,0],[0,0,0]])
@@ -110,15 +110,15 @@ for _ in range(0,games):
     final_policy_counter[Pi[0]][Pi[1]] += 1
     
     
+    #calculate results
 # =============================================================================
-#     #calculate results
-#     print '*** RESULTS ***'
-#     print "visits: " + str(visits)
-#     print "Q: " + str(Q)
-#     print "Final Policy: " + str(Pi)
-#     print ''
-#     print '*** Extra ***'
-#     print "Random actions per player: " + str(counter_rand_actions)
+#     print('*** RESULTS ***')
+#     print("visits: " + str(visits))
+#     print("Q: " + str(Q))
+#     print("Final Policy: " + str(Pi))
+#     print('')
+#     print('*** Extra ***')
+#     print("Random actions per player: " + str(counter_rand_actions))
 # =============================================================================
 
 print(" *** Results ***")

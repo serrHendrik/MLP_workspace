@@ -103,7 +103,7 @@ class Agent_Controller:
         self.action_size = len(self.actions)
         
         #DDQN
-        model_name = "models/DDQN_MODEL_4actions"
+        model_name = "models/DDQN_MODEL_4actions_" + agent_type
         self.network = Keras_DDQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=model_name)
 
         #Keep one agent per player
@@ -189,6 +189,7 @@ class Agent_Controller:
                 scores_agents.append(self.scores_t[p-1])
 
             write_scores(scores_agents, self.timestep)
+            print("Agent Controller finished.\n\n")
             
 
 

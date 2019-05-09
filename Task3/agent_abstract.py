@@ -31,7 +31,7 @@ class agent_abstract(ABC):
         #Exploration
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.98
+        self.epsilon_decay = 0.95
         
     
     
@@ -39,23 +39,23 @@ class agent_abstract(ABC):
         state = self.calc_state(players,apples)
         
         #Feed to network
-        if np.random.rand() <= self.epsilon:
-            action_index = random.randrange(self.action_size)
+        #if self.play_mode == False and np.random.rand() <= self.epsilon:
+        #    action_index = random.randrange(self.action_size)
             
-            if self.epsilon > self.epsilon_min:
-                self.epsilon *= self.epsilon_decay
+        #    if self.epsilon > self.epsilon_min:
+        #        self.epsilon *= self.epsilon_decay
             
+        #else:
+        q_values = self.network.act(state = state)
+        if self.action_size == 3:
+            #Without firing, use guilt and envy to model Inequity Averse Behaviour
+            action_index = self.q_values_to_action(q_values)
+        elif self.action_size == 4:
+            # With firing, IA behaviour is modelled in the q-values
+            action_index = np.argmax(q_values)
         else:
-            q_values = self.network.act(state = state)
-            if self.action_size == 3:
-                #Without firing, use guilt and envy to model Inequity Averse Behaviour
-                action_index = self.q_values_to_action(q_values)
-            elif self.action_size == 4:
-                # With firing, IA behaviour is modelled in the q-values
-                action_index = np.argmax(q_values)
-            else:
-                action_index = -1
-                print("Error in agent_abstract: next_action()")
+            action_index = -1
+            print("Error in agent_abstract: next_action()")
                
         if self.play_mode == False:
             #Store action and state and set dirty bit
@@ -112,7 +112,7 @@ class agent_abstract(ABC):
             inp_y = apple_y - player_y + 7 - 1
 
             state[inp_y,inp_x] = 1.0
-        """
+        
         #fill network ipnut with players on third channel
         for p in players:
             p_x, p_y = p["location"]
@@ -131,8 +131,8 @@ class agent_abstract(ABC):
                 #print("p_x and p_y transformed: " + str(p_x) + " " + str(p_y))
                 inp_x = p_x - player_x + 7 - 1
                 inp_y = p_y - player_y + 7 - 1
-                state[inp_y,inp_x] = 0.5
-        """
+                state[inp_y,inp_x] = -1.0
+        
         # Exploit symmetry to help network train better
         # Rotate state so that player orientation is up
         orientation = players[self.player-1]["orientation"]
