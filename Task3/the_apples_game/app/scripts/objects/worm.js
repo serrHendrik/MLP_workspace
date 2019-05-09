@@ -151,6 +151,7 @@ export default class Worm {
 
   tag() {
     if (this.updated) {
+      /*
       this.updated = false;
       this.scene.tweens.add({
 
@@ -163,7 +164,7 @@ export default class Worm {
         yoyo: true,
 
         // tween duration
-        duration: 500,
+        duration: 1,
 
         // callback scope
         callbackScope: this,
@@ -174,12 +175,14 @@ export default class Worm {
           this.updated = true;
         }
       });
+      */
       return true;
     }
     return false;
   }
 
   fire() {
+    /*
     if (this.updated) {
       this.updated = false;
       this.scene.tweens.add({
@@ -194,7 +197,7 @@ export default class Worm {
         yoyo: true,
 
         // tween duration
-        duration: 200,
+        duration: 1,
 
         // callback scope
         callbackScope: this,
@@ -205,6 +208,7 @@ export default class Worm {
         }
       });
     }
+    */
   }
 
   /**

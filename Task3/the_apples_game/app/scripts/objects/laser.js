@@ -10,7 +10,7 @@ export default class Laser extends Phaser.GameObjects.Image {
   constructor(scene) {
     super(scene);
 
-    this.maxDuration = 100;
+    this.maxDuration = 0;
     this.freq = LENGTH; // The frequency (4) = the number of waves
     this.sin = Phaser.Math.SinCosTableGenerator(880, 3, 1, this.freq).sin;
     this.bmd = scene.add.graphics();

@@ -92,8 +92,6 @@ class Keras_DDQNAgent:
         
         
     def act(self, state):
-        #if np.random.rand() <= self.epsilon:
-        #    return random.randrange(self.action_size)
         state = self.reshape_state(state)
         act_values = self.model1.predict(state)
         return act_values[0]  # returns q-values Q(state,.)

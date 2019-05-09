@@ -1,1 +1,1 @@
-python agent_controller.py --quiet --type FR --play 8082
+python agent_controller.py --quiet --type FR --play 8092

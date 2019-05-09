@@ -211,7 +211,7 @@ export default class Game extends Phaser.Scene {
         .sort((a, b) => a.distance - b.distance)
         .find(otherPlayer => this.laser.fire(curPlayer.worm.headPosition, curPlayer.worm.direction, otherPlayer.worm.headPosition));
       if (hit) {
-        hit.worm.tag();
+        // hit.worm.tag();
         let hitPlayer = window.agents.find(agent => agent.id === hit.worm.id);
         hitPlayer.points = Math.max(0, hitPlayer.points - 50);
         this.events.emit('worm-hit', hit.id, hitPlayer.points);

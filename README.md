@@ -3,10 +3,13 @@ May, 13th
 # TODO
 * Task 2
 * Task 3
+* Report!
 
 # Overleaf
 #### Task 1
     https://www.overleaf.com/6877141131cfbwfvdwrskz
+#### Task 2/3
+    https://www.overleaf.com/5774999625pbqgxdpvybpq
 # Git Basics
 ## Clone repo
 Navigate to directory where you want to clone this repository and use the following command:
