@@ -158,4 +158,5 @@ class Keras_DDQNAgent:
         self.update_models()
         self.save_model()
         self.save_loss()
+        print("\n\nDDQN Agent finished.\n")
     

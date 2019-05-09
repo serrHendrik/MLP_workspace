@@ -22,6 +22,7 @@ class fictitiousPlayerRPS:
             
         #Track total earned reward
         self.total_reward = 0
+        self.total_reward_timeline = list()
             
     def play(self):
         return self.bestResponse(self.expected)
@@ -38,7 +39,7 @@ class fictitiousPlayerRPS:
         """
         
         self.total_reward += payoff
-        
+        self.total_reward_timeline.append(self.total_reward)
         self.beliefs[opponentPlay] += 1
         #print("I played " + str(played) + ". Payoff: " + str(payoff) + ". Beliefs: " + str(self.beliefs))
         self.beliefs_timeline = np.append(self.beliefs_timeline,[np.copy(self.beliefs) / float(sum(self.beliefs))],axis=0)
@@ -47,7 +48,7 @@ class fictitiousPlayerRPS:
         elif self.beliefs[opponentPlay] == self.beliefs[self.expected]:
             if random.random() > 0.5 : self.expected = opponentPlay
     
-        #Play CODES:    0 : Rock
+    #Play CODES:    0 : Rock
     #               1 : Paper
     #               2 : Scissors
     def bestResponse(self, play):

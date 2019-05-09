@@ -30,7 +30,7 @@ class RPSgame:
         self.p2 = player2
         self.results = np.zeros([3,3])
         
-    def play(self, episodes = 1000):
+    def play(self, episodes = 10000):
         for ep in range(episodes):
             play_p1 = self.p1.play()
             play_p2 = self.p2.play()
@@ -47,15 +47,21 @@ game = RPSgame(p1,p2)
 #game = RPSgame()
 results = game.play()
 print(results)
-print("Row player: " + str(results.sum(axis=1) / sum(sum(results))))
-print("Column player: " + str(results.sum(axis=0) / sum(sum(results))))
-#Findings: fictitious play very influencable by initial beliefs
-#What when beliefs of 2 actions are equal? (now just maintain same strategy)       
+print("Moves Row player: " + str(results.sum(axis=1) / sum(sum(results))))
+print("Moves Column player: " + str(results.sum(axis=0) / sum(sum(results))))
+print("Score Row player: " + str(game.p1.total_reward))
+print("Score Column player: " + str(game.p2.total_reward))
 
-
+plt.figure(figsize=(10,5))
+plt.plot(game.p1.total_reward_timeline)
+plt.ylabel("Total accumulated reward")
+plt.xlabel("Time [episodes]")
+plt.grid()
+plt.savefig("Images/FP_total_reward.png")
+plt.show()
 
 #Visualising
-fig = plt.figure(figsize=(10,5))
+fig = plt.figure(figsize=(10,8))
 ax = fig.add_subplot(111)
 # Transform matrix
 T = np.matrix([[1,-0.5],[-1,-0.5],[0,1]])
