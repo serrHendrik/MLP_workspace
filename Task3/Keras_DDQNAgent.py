@@ -39,14 +39,14 @@ class Keras_DDQNAgent:
         self.loss_total_filename = model_name + "_loss_total.csv"
         
         self.memory = deque(maxlen=500)
-        self.batch_size = 500
+        self.batch_size = 50
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.95
         self.learning_rate = 0.001
         #if replay_counter reaches replay_frequency, do a replay
-        self.replay_frequency = 500
+        self.replay_frequency = 50
         self.replay_counter = 0
         self.episode_loss_total = 0.0
         self.episode_loss_per_minibatch = list()

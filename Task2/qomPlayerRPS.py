@@ -31,7 +31,7 @@ class qomPlayerRPS:
         for i in range(0,3):
             self.EV[i] = sum( np.multiply(self.Q[i,:], self.beliefs / float(sum(self.beliefs))) )
         
-        #count number of actions corresponding to largest EV.
+        #count number of actions not corresponding to largest EV due to exploration.
         self.counter = 0
         
         #Track total earned reward
@@ -42,7 +42,7 @@ class qomPlayerRPS:
         #Calculate action with largest EV (only used for counter statistics)
         action_largestEV = np.argmax(self.EV)
         
-        #Use Boltzmann Exploration to calculate probabilities of choosen a certain action
+        #Use Boltzmann Exploration to calculate probabilities of choosing a certain action
         # Nominator
         probs = np.e**(self.EV / float(T))
         probs = probs.flatten()
@@ -74,4 +74,6 @@ class qomPlayerRPS:
         self.beliefs_timeline = np.append(self.beliefs_timeline,[np.copy(self.beliefs) / float(sum(self.beliefs))],axis=0)
         
         #Update EV
-        self.EV[myAction] = sum( np.multiply(self.Q[myAction,:], self.beliefs / float(sum(self.beliefs))) )
+        #self.EV[myAction] = sum( np.multiply(self.Q[myAction,:], self.beliefs / float(sum(self.beliefs))) )
+        for i in range(0,3):
+            self.EV[i] = sum( np.multiply(self.Q[i,:], self.beliefs / float(sum(self.beliefs))) )

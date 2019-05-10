@@ -30,7 +30,7 @@ class RPSgame:
         self.p2 = player2
         self.results = np.zeros([3,3])
         
-    def play(self, episodes = 10000):
+    def play(self, episodes = 100000):
         for ep in range(episodes):
             play_p1 = self.p1.play()
             play_p2 = self.p2.play()
@@ -40,7 +40,7 @@ class RPSgame:
             self.results[play_p1, play_p2] += 1
         return self.results
     
-max_init = 10
+max_init = 100
 p1 = fictitiousPlayerRPS([random.randint(1,max_init),random.randint(1,max_init),random.randint(1,max_init)])
 p2 = fictitiousPlayerRPS([random.randint(1,max_init),random.randint(1,max_init),random.randint(1,max_init)])
 game = RPSgame(p1,p2) 

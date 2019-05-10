@@ -72,7 +72,7 @@ p2 = qomPlayerRPS(alpha = 0.1, initialBeliefs = [random.randint(1,max_init),rand
 p3 = fictitiousPlayerRPS([random.randint(1,max_init),random.randint(1,max_init),random.randint(1,max_init)])
 
 
-game = RPSgame(player1 = p1, player2 = p3) 
+game = RPSgame(player1 = p1, player2 = p2) 
 results = game.play()
 print(results)
 print("Row player: " + str(results.sum(axis=1) / sum(sum(results))))

@@ -29,7 +29,7 @@ class agent_abstract(ABC):
         self.dirty_bit = False
         
         #Exploration
-        self.epsilon = 1.0  # exploration rate
+        self.epsilon = 0.1  # exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.95
         
@@ -39,23 +39,23 @@ class agent_abstract(ABC):
         state = self.calc_state(players,apples)
         
         #Feed to network
-        #if self.play_mode == False and np.random.rand() <= self.epsilon:
-        #    action_index = random.randrange(self.action_size)
+        if self.play_mode == False and np.random.rand() <= self.epsilon:
+            action_index = random.randrange(self.action_size)
             
-        #    if self.epsilon > self.epsilon_min:
-        #        self.epsilon *= self.epsilon_decay
+            #if self.epsilon > self.epsilon_min:
+            #    self.epsilon *= self.epsilon_decay
             
-        #else:
-        q_values = self.network.act(state = state)
-        if self.action_size == 3:
-            #Without firing, use guilt and envy to model Inequity Averse Behaviour
-            action_index = self.q_values_to_action(q_values)
-        elif self.action_size == 4:
-            # With firing, IA behaviour is modelled in the q-values
-            action_index = np.argmax(q_values)
         else:
-            action_index = -1
-            print("Error in agent_abstract: next_action()")
+            q_values = self.network.act(state = state)
+            if self.action_size == 3:
+                #Without firing, use guilt and envy to model Inequity Averse Behaviour
+                action_index = self.q_values_to_action(q_values)
+            elif self.action_size == 4:
+                # With firing, IA behaviour is modelled in the q-values
+                action_index = np.argmax(q_values)
+            else:
+                action_index = -1
+                print("Error in agent_abstract: next_action()")
                
         if self.play_mode == False:
             #Store action and state and set dirty bit
