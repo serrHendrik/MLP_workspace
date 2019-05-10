@@ -53,7 +53,7 @@ def default_model_v2(input_shape=(15,15,1), action_size=4):
     model.add(Dense(48, activation='relu'))
     model.add(Dense(24, activation='relu'))
     model.add(Dense(action_size, activation='linear'))
-    model.compile(loss='mse', optimizer=Adam(lr=0.000001))
+    model.compile(loss='mse', optimizer=Adam(lr=0.0001))
     return model
 
 

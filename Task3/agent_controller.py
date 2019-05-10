@@ -269,7 +269,7 @@ async def handler(websocket, path):
                 logger.error("Unknown message type:\n{}".format(msg))
 
             if answer is not None:
-                print(answer)
+                #print(answer)
                 await websocket.send(json.dumps(answer))
                 logger.info("> {}".format(answer))
     except websockets.exceptions.ConnectionClosed as err:
