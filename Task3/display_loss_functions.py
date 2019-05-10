@@ -19,7 +19,7 @@ MODEL_TYPE = "DDQN"
 
 files = {
         "DQN": ["models/DQN_MODEL_loss_per_minibatch.csv", "models/DQN_MODEL_loss_total.csv"],
-        "DDQN": ["models/DDQN_MODEL_loss_per_minibatch.csv", "models/DDQN_MODEL_loss_total.csv"]
+        "DDQN": ["models/DDQN_MODEL_4actions_IA_loss_per_minibatch.csv", "models/DDQN_MODEL_4actions_IA_loss_total.csv"]
     }
 
 

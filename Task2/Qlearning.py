@@ -95,7 +95,7 @@ for _ in range(0,games):
         
         # k is an exploration variable used in select_action.
         # based on counter_rand_actions, tune this value to a desired degree of exploration
-        k = episode / 1000.0 + 1.0
+        k = episode / 0.1 + 1.0
         
         a_p0 = select_action(0,k)
         a_p1 = select_action(1,k)

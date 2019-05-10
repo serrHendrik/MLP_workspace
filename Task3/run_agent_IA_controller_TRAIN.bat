@@ -1,1 +1,1 @@
-python agent_controller.py --type IA 8081
+python agent_controller.py --quiet --type IA 8081
