@@ -37,16 +37,23 @@ def new_DQNAgent(nb_actions):
     return agent
 
 
+def default_model_v1(input_shape=(15,15,1), action_size=4):    
+    model = Sequential()
+    model.add(Flatten(input_shape=input_shape))
+    model.add(Dense(24, activation='relu'))
+    model.add(Dense(24, activation='relu'))
+    model.add(Dense(action_size, activation='linear'))
+    model.compile(loss='mse', optimizer=Adam(lr=0.001))
+    return model
 
-
-def default_model(input_shape=(15,15,1), action_size=4):    
+def default_model_v2(input_shape=(15,15,1), action_size=4):    
     model = Sequential()
     model.add(Flatten(input_shape=input_shape))
     model.add(Dense(96, activation='relu'))
     model.add(Dense(48, activation='relu'))
     model.add(Dense(24, activation='relu'))
     model.add(Dense(action_size, activation='linear'))
-    model.compile(loss='mse', optimizer=Adam(lr=0.001))
+    model.compile(loss='mse', optimizer=Adam(lr=0.000001))
     return model
 
 

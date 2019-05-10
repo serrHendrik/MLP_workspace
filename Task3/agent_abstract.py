@@ -29,9 +29,9 @@ class agent_abstract(ABC):
         self.dirty_bit = False
         
         #Exploration
-        self.epsilon = 0.1  # exploration rate
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.95
+        self.epsilon = 0.05  # exploration rate
+        #self.epsilon_min = 0.01
+        #self.epsilon_decay = 0.95
         
     
     
