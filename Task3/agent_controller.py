@@ -16,6 +16,7 @@ import numpy as np
 import csv
 import datetime
 import tensorflow as tf
+import myLibrary as ml
 
 from agent_IA import agent_IA
 from agent_FR import agent_FR
@@ -28,6 +29,7 @@ agentclass = None
 agentcontroller = None
 agent_type = None
 play_mode = None
+model = None
 
 #Statistics
 header_written = False
@@ -36,7 +38,7 @@ def write_header(agents):
         with open(stats_file, 'w',newline='') as wf:
             writer = csv.writer(wf)
             l1 = [agent_type for _ in agents]
-            l2 = ["","TOTAL (SUM)", "MEAN", "VARIANCE", "TIMESTEPS TO GAME END"]
+            l2 = ["","TOTAL (SUM)", "MEAN", "INEQUALITY", "SUSTAINABILITY", "FIRED", "TIMESTEPS TO GAME END"]
             l = l1 + l2
             writer.writerow(l)
         wf.close()
@@ -45,17 +47,17 @@ def set_headers_written():
     global header_written
     header_written = True
 
-def write_scores(scores_agents, timestep):
+def write_scores(scores_agents, sustainability, fired, timestep):
     #never modify header again
     set_headers_written()
     total = -1
     mean = -1
-    var = -1
+    inequality = -1
     if len(scores_agents) > 0:
         total = np.sum(scores_agents)
         mean = np.mean(scores_agents)
-        var = np.var(scores_agents)
-    row = scores_agents + ["", total, mean, var, timestep]
+        inequality = ml.gini(np.asarray(scores_agents))
+    row = scores_agents + ["", total, mean, inequality, sustainability, fired, timestep]
     with open(stats_file, 'a',newline='') as wf:
         writer = csv.writer(wf)
         writer.writerow(row)
@@ -103,7 +105,7 @@ class Agent_Controller:
         self.action_size = len(self.actions)
         
         #DDQN
-        model_name = "models/DDQN_MODEL_4actions_" + agent_type
+        model_name = model + agent_type
         self.network = Keras_DDQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=model_name)
 
         #Keep one agent per player
@@ -124,6 +126,8 @@ class Agent_Controller:
         self.timestep = 0
         
         #Statistics
+        self.sustainability = np.zeros(nb_players)
+        self.fired = np.zeros(nb_players)
         write_header(self.player_list)
         
         
@@ -153,6 +157,8 @@ class Agent_Controller:
             self.scores_tMinus1 = self.scores_t
             self.scores_t = scores
             self.rewards = self.scores_t - self.scores_tMinus1
+            #statistics
+            self.sustainability += self.rewards * self.timestep
         
         #Push updates
         self.agents[player].observe(self.rewards, players, apples, terminal)
@@ -173,6 +179,11 @@ class Agent_Controller:
                 .format(self.nb_rows, self.nb_cols, self.player_list))
         
         action_index = self.agents[player].next_action(players,apples)
+        
+        #statistics
+        if self.actions[action_index] == "fire":
+            self.fired +=1
+        
         return self.actions[action_index]
         
 
@@ -187,8 +198,13 @@ class Agent_Controller:
             scores_agents = list()
             for p in self.player_list:
                 scores_agents.append(self.scores_t[p-1])
-
-            write_scores(scores_agents, self.timestep)
+                
+            #compute average sustainability & fired
+            susTotal = self.sustainability/self.scores_t
+            avgSustainability = np.mean(susTotal)
+            avgFired = np.mean(self.fired)
+            
+            write_scores(scores_agents, avgSustainability, avgFired, self.timestep)
             print("Agent Controller finished.\n\n")
             
 
@@ -292,18 +308,22 @@ def main(argv=None):
     global agent_type
     global play_mode
     global stats_file
+    global model
     parser = argparse.ArgumentParser(description='Start agent to play the Apples game')
     parser.add_argument('--verbose', '-v', action='count', default=0, help='Verbose output')
     parser.add_argument('--quiet', '-q', action='count', default=0, help='Quiet output')
     parser.add_argument('port', metavar='PORT', type=int, help='Port to use for server')
     parser.add_argument('--type','-t', default="IA", help='agent type is either \'FR\' (Free Rider) or \'IA\' (Inequity Averse, default)')
     parser.add_argument('--play','-p', action='count', default=0, help='In play-mode, the models will not train while playing. As FR and IA use the same model, play-mode is recommended when combining both types of players in a single game.')
+    parser.add_argument('--model', '-m', default = "models/DDQN_MODEL_4actions_", type = str, help = 'name of model to store in models folder')
     args = parser.parse_args(argv)
 
     logger.setLevel(max(logging.INFO - 10 * (args.verbose - args.quiet), logging.DEBUG))
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     agentcontroller = Agent_Controller
+    
+    model = args.model
     
     if args.type == "FR":
         agent_type = "FR"
