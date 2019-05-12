@@ -126,10 +126,10 @@ export default class Apples extends Phaser.GameObjects.Group {
           P = 0;
           break;
         case 1:
-          P = 0.005;
+          P = 0.008;
           break;
         case 2:
-          P = 0.02;
+          P = 0.0;
           break;
         default:
           P = 0.0;

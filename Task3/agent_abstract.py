@@ -29,7 +29,7 @@ class agent_abstract(ABC):
         self.dirty_bit = False
         
         #Exploration
-        self.epsilon = 0.2  # exploration rate
+        self.epsilon = 0.05  # exploration rate
         #self.epsilon_min = 0.01
         #self.epsilon_decay = 0.95
         
@@ -112,7 +112,7 @@ class agent_abstract(ABC):
             inp_y = apple_y - player_y + 7 - 1
 
             state[inp_y,inp_x] = 1.0
-        
+        """
         #fill network ipnut with players on third channel
         for p in players:
             p_x, p_y = p["location"]
@@ -132,6 +132,7 @@ class agent_abstract(ABC):
                 inp_x = p_x - player_x + 7 - 1
                 inp_y = p_y - player_y + 7 - 1
                 state[inp_y,inp_x] = -1.0
+        """
         
         # Exploit symmetry to help network train better
         # Rotate state so that player orientation is up

@@ -21,7 +21,7 @@ class agent_IA(agent_abstract):
         self.l = 1      #lamda used to calculate e-value
         self.e_values = np.zeros(nb_players)
         self.a = 1.0    #alpha used to calculate subjective rewards
-        self.b = 0   #beta used to calculate subjective rewards
+        self.b = 1.0   #beta used to calculate subjective rewards
     
     
     

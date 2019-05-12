@@ -101,12 +101,13 @@ class Agent_Controller:
         self.state_size = 15*15
         
         #define the mapping of the action scalar to a certain action
-        #self.actions = ["left","move","right","fire"]
-        self.actions = ["left","move","right", "fire"]
+        self.actions = ["left","move","right"]
+        #self.actions = ["left","move","right", "fire"]
         self.action_size = len(self.actions)
         
         #DDQN
         model_name = model + agent_type
+        #model_name = model
         self.network = Keras_DDQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=model_name)
 
         #Keep one agent per player

@@ -1,1 +1,1 @@
-python agent_controller.py --type FR 8082
+python agent_controller.py --quiet --type FR --model models/DDQN_MODEL_ 8082
