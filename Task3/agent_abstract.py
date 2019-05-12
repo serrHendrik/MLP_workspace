@@ -112,27 +112,28 @@ class agent_abstract(ABC):
             inp_y = apple_y - player_y + 7 - 1
 
             state[inp_y,inp_x] = 1.0
-        """
-        #fill network ipnut with players on third channel
-        for p in players:
-            p_x, p_y = p["location"]
-            if (type(p_x) == int):
-                #handle endless field
-                #print("p_x and p_y original: " + str(p_x) + " " + str(p_y))
-                if p_x < player_x - 7:
-                    p_x += self.nb_cols
-                elif p_x > player_x + 7:
-                    p_x -= self.nb_cols
-                
-                if p_y < player_y - 7:
-                    p_y += self.nb_rows
-                elif p_y > player_y + 7:
-                    p_y -= self.nb_rows
-                #print("p_x and p_y transformed: " + str(p_x) + " " + str(p_y))
-                inp_x = p_x - player_x + 7 - 1
-                inp_y = p_y - player_y + 7 - 1
-                state[inp_y,inp_x] = -1.0
-        """
+        
+        if self.action_size == 4:
+            #fill network ipnut with players on third channel
+            for p in players:
+                p_x, p_y = p["location"]
+                if (type(p_x) == int):
+                    #handle endless field
+                    #print("p_x and p_y original: " + str(p_x) + " " + str(p_y))
+                    if p_x < player_x - 7:
+                        p_x += self.nb_cols
+                    elif p_x > player_x + 7:
+                        p_x -= self.nb_cols
+                    
+                    if p_y < player_y - 7:
+                        p_y += self.nb_rows
+                    elif p_y > player_y + 7:
+                        p_y -= self.nb_rows
+                    #print("p_x and p_y transformed: " + str(p_x) + " " + str(p_y))
+                    inp_x = p_x - player_x + 7 - 1
+                    inp_y = p_y - player_y + 7 - 1
+                    state[inp_y,inp_x] = -1.0
+            
         
         # Exploit symmetry to help network train better
         # Rotate state so that player orientation is up
