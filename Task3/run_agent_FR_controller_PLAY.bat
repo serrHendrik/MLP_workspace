@@ -1,1 +1,1 @@
-python agent_controller.py --quiet --play --type FR --model models/play_no_fire_ 8082
+python agent_controller.py --quiet --play --type FR --model models/evolutionModel4actions 8082

@@ -101,8 +101,8 @@ class Agent_Controller:
         self.state_size = 15*15
         
         #define the mapping of the action scalar to a certain action
-        self.actions = ["left","move","right"]
-        #self.actions = ["left","move","right", "fire"]
+        #self.actions = ["left","move","right"]
+        self.actions = ["left","move","right", "fire"]
         self.action_size = len(self.actions)
         
         #DDQN
@@ -129,6 +129,7 @@ class Agent_Controller:
         
         #Statistics
         self.sustainability = np.zeros(nb_players)
+        self.nb_rewarded = np.zeros(nb_players)
         self.fired = np.zeros(nb_players)
         write_header(self.player_list)
         
@@ -161,6 +162,7 @@ class Agent_Controller:
             self.rewards = self.scores_t - self.scores_tMinus1
             #statistics
             self.sustainability += self.rewards * self.timestep
+            self.nb_rewarded += self.rewards
         
         #Push updates
         self.agents[player].observe(self.rewards, players, apples, terminal)
@@ -202,7 +204,7 @@ class Agent_Controller:
                 scores_agents.append(self.scores_t[p-1])
                 
             #compute average sustainability & fired
-            susTotal = self.sustainability/self.scores_t
+            susTotal = self.sustainability/(self.nb_rewarded+0.001) #can't be zero
             avgSustainability = np.mean(susTotal)
             avgFired = np.mean(self.fired)
             

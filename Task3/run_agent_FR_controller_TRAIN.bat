@@ -1,1 +1,1 @@
-python agent_controller.py --quiet --type FR --model models/DDQN_MODEL_ 8082
+python agent_controller.py --quiet --type FR --model models/evolutionModel4actions 8082
