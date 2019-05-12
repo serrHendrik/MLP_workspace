@@ -2,10 +2,9 @@
 """
 Created on Fri Apr 26 11:44:02 2019
 
-@author: serru
+
 """
 import numpy as np
-import random
 
 
 class FPPlayer:
@@ -23,7 +22,8 @@ class FPPlayer:
         self.total_reward = 0
         self.total_reward_timeline = list()
             
-    def play(self):
+    def play(self, T):
+        #T is not used in FP!
         probs = self.beliefs / float(sum(self.beliefs))
         expected = np.random.choice(3,p=probs)
         return self.bestResponse(expected)

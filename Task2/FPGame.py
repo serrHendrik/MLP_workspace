@@ -50,6 +50,7 @@ game = FPgame(p1,p2)
 results = game.play()
 
 print(results)
+print(str(results / float(sum(sum(results)))))
 print("Moves Row player: " + str(results.sum(axis=1) / float(sum(sum(results)))))
 print("Moves Column player: " + str(results.sum(axis=0) / float(sum(sum(results)))))
 print("Score Row player: " + str(game.p1.total_reward))

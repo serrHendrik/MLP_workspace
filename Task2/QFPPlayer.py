@@ -8,17 +8,18 @@ Created on Fri Apr 26 11:47:24 2019
 import random
 import numpy as np
 
-class qomPlayerRPS:
+class QFPPlayer:
     
     def __init__(self,alpha = 0.1, initialBeliefs = [1,1,1]):
         
         #Q function: AxA -> Q value
         #AxA: Action of self and Action of other player
-        q_init = 100.0
+        q_init = 0.0
         self.Q = np.array([[q_init,q_init,q_init],
                            [q_init,q_init,q_init],
                            [q_init,q_init,q_init]])
         self.alpha = alpha
+        self.gamma = 0.1
         
         #Opponent Modelling
         self.beliefs = np.array(initialBeliefs)
@@ -36,6 +37,7 @@ class qomPlayerRPS:
         
         #Track total earned reward
         self.total_reward = 0
+        self.total_reward_timeline = list()
         
     def play(self,T):
         
@@ -54,7 +56,6 @@ class qomPlayerRPS:
         #Use cumulative sum + random number to choose an action
         probs_cs = np.cumsum(probs)
         r = random.random()
-        #print("probs: " + str(probs) + " and probs_cs: " + str(probs_cs) + " and r = " + str(r))
         for new_action in range(0,3):
             if (r < probs_cs[new_action]): 
                 if new_action != action_largestEV:
@@ -65,9 +66,10 @@ class qomPlayerRPS:
     def update(self, myAction, opponentAction, reward):
         #Update reward count
         self.total_reward += reward
-        #print(str(self.total_reward))
+        self.total_reward_timeline.append(self.total_reward)
+        
         #Update Q
-        self.Q[myAction,opponentAction] = (1 - self.alpha)*self.Q[myAction,opponentAction] + self.alpha*reward
+        self.Q[myAction,opponentAction] = (1 - self.alpha)*self.Q[myAction,opponentAction] + self.alpha*(reward + self.gamma*np.max(self.EV))
         
         #Update beliefs
         self.beliefs[opponentAction] += 1
