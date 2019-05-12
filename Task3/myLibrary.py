@@ -1,40 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Apr 28 20:03:08 2019
+Created on Sat May 11 18:47:16 2019
 
 @author: emile
 """
 import numpy as np
 
-def CreateApplesMatrix(apples, myLoc, myOr):
-    a = np.zeros([15,15])
-    for apple in apples:
-        #center around location ([7,7] is location of player)
-        apple = apple - myLoc + [7,7]
-        #[7,7] or [8,8] ?
-        if min(apple) < 0 : print("ERROR: Translation not sufficient")
-        a[apple[0],apple[1]] = 1 #more elegant way of doing this?
-    return rotate(a, myOr)
-
-
-#TODO possibility to make use of limited total number of players?
-def createPlayerMatrix(players, playing, myLoc, myOrientation):
-    a = np.zeros([15,15])
-    for player in players:
-        loc = player["location"]
-        loc = loc - myLoc + [7,7]
-        a[loc[0],loc[1]] = 1
-    return rotate(a, myOrientation)
-
-def rotate(a, myOr):
-    #standard orientation up
-    if myOr == "right":
-        a = np.rot90(a)
-    elif myOr == "left":
-        a = np.rot90(a,3)
-    elif myOr == "down":
-        a = np.rot90(a,2)
-    elif myOr == "up": 
-        pass
-    else : print("ERROR: orientation is right up left or down")
-    return a
+def gini(array):
+    """Calculate the Gini coefficient of a numpy array."""
+    # based on bottom eq: http://www.statsdirect.com/help/content/image/stat0206_wmf.gif
+    # from: http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm
+    array = array.flatten() #all values are treated equally, arrays must be 1d
+    if np.amin(array) < 0:
+        array -= np.amin(array) #values cannot be negative
+    array += 0.0000001 #values cannot be 0
+    array = np.sort(array) #values must be sorted
+    index = np.arange(1,array.shape[0]+1) #index per array element
+    n = array.shape[0]#number of array elements
+    return ((np.sum((2 * index - n  - 1) * array)) / (n * np.sum(array))) #Gini coefficient
