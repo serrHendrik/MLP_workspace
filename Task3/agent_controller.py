@@ -38,7 +38,7 @@ def write_header(agents):
         with open(stats_file, 'w',newline='') as wf:
             writer = csv.writer(wf)
             l1 = [agent_type for _ in agents]
-            l2 = ["","TOTAL (SUM)", "MEAN", "INEQUALITY", "SUSTAINABILITY", "FIRED", "TIMESTEPS TO GAME END"]
+            l2 = ["","TOTAL (SUM)", "MEAN", "STAND. DEVI.", "INEQUALITY", "SUSTAINABILITY", "FIRED", "TIMESTEPS TO GAME END"]
             l = l1 + l2
             writer.writerow(l)
         wf.close()
@@ -56,8 +56,9 @@ def write_scores(scores_agents, sustainability, fired, timestep):
     if len(scores_agents) > 0:
         total = np.sum(scores_agents)
         mean = np.mean(scores_agents)
+        std = np.std(scores_agents)
         inequality = ml.gini(np.asarray(scores_agents))
-    row = scores_agents + ["", total, mean, inequality, sustainability, fired, timestep]
+    row = scores_agents + ["", total, mean, std, inequality, sustainability, fired, timestep]
     with open(stats_file, 'a',newline='') as wf:
         writer = csv.writer(wf)
         writer.writerow(row)
