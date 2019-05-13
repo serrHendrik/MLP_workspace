@@ -106,7 +106,7 @@ class Agent_Controller:
         self.action_size = len(self.actions)
         
         #DDQN
-        model_name = model + agent_type
+        model_name = model
         #model_name = model
         self.network = Keras_DDQNAgent(state_size = self.state_size, action_size = self.action_size, model_name=model_name)
 
@@ -130,7 +130,7 @@ class Agent_Controller:
         #Statistics
         self.sustainability = np.zeros(nb_players)
         self.fired = np.zeros(nb_players)
-        write_header(self.player_list)
+        #write_header(self.player_list)
         
         
     def add_player(self, player):
@@ -139,7 +139,7 @@ class Agent_Controller:
         self.agents[player] = agentclass(self.network, player, self.nb_rows, self.nb_cols, self.nb_players, self.state_size, self.action_size, play_mode)
         
         #update header for this session
-        write_header(self.player_list)
+        #write_header(self.player_list)
         
 
     def register_action(self, row, column, orientation, player):
@@ -206,7 +206,7 @@ class Agent_Controller:
             avgSustainability = np.mean(susTotal)
             avgFired = np.mean(self.fired)
             
-            write_scores(scores_agents, avgSustainability, avgFired, self.timestep)
+            #write_scores(scores_agents, avgSustainability, avgFired, self.timestep)
             print("Agent Controller finished.\n\n")
             
 
@@ -316,8 +316,8 @@ def main(argv=None):
     parser.add_argument('--quiet', '-q', action='count', default=0, help='Quiet output')
     parser.add_argument('port', metavar='PORT', type=int, help='Port to use for server')
     parser.add_argument('--type','-t', default="IA", help='agent type is either \'FR\' (Free Rider) or \'IA\' (Inequity Averse, default)')
-    parser.add_argument('--play','-p', action='count', default=0, help='In play-mode, the models will not train while playing. As FR and IA use the same model, play-mode is recommended when combining both types of players in a single game.')
-    parser.add_argument('--model', '-m', default = "models/DDQN_MODEL_4actions_", type = str, help = 'name of model to store in models folder')
+    parser.add_argument('--train','-a', action='count', default=0, help='In play-mode, the models will not train while playing. As FR and IA use the same model, play-mode is recommended when combining both types of players in a single game.')
+    parser.add_argument('--model', '-m', default = "models/BetaZero", type = str, help = 'name of model to store / stored in models folder (no filename extension!)')
     args = parser.parse_args(argv)
 
     logger.setLevel(max(logging.INFO - 10 * (args.verbose - args.quiet), logging.DEBUG))
@@ -334,7 +334,7 @@ def main(argv=None):
         agent_type = "IA"
         agentclass = agent_IA
     
-    if args.play == 0:
+    if args.train == 1:
         play_mode = False
     else:
         play_mode = True

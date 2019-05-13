@@ -23,7 +23,7 @@ games = {}
 agentclass = None
 
 
-class GreedyAgent:
+class RandomAgent:
     """Example agent implementation base class.
     It moves the agent one position forward.
     A Agent object should implement the following methods:
@@ -184,7 +184,7 @@ def main(argv=None):
     logger.setLevel(max(logging.INFO - 10 * (args.verbose - args.quiet), logging.DEBUG))
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
-    agentclass = GreedyAgent
+    agentclass = RandomAgent
     start_server(args.port)
 
 

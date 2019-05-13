@@ -1,0 +1,28 @@
+GENERAL AGENTS:
+play mode
+5 agents
+
+ENVIRONMENT:
+50 apples at start
+growth rate = <0;0.008;0;0> ( = <0 neighb., 1 neighb., 2 neighb., >2 neighb.> )
+
+20 runs per parameter setting
+
+---
+PARAMETER SETTINGS:
+
+FR agents: no info required
+IA1_1 agents: alpha = 1.0, beta = 1.0
+IA1_2 agents: alpha = 2.0, beta = 1.0
+IA1_3 agents: alpha = 3.0, beta = 1.0
+IA1_4 agents: alpha = 4.0, beta = 1.0
+IA1_5 agents: alpha = 5.0, beta = 1.0
+IA1_6 agents: alpha = 6.0, beta = 1.0
+IA1_8 agents: alpha = 8.0, beta = 1.0
+IA1_11 agents: alpha = 11.0, beta = 1.0
+IA1_13 agents: alpha = 13.0, beta = 1.0
+IA1_19 agents: alpha = 19.0, beta = 1.0
+
+IA2_2 agents: alpha = 1.0, beta = 2.0
+IA2_3 agents: alpha = 1.0, beta = 3.0
+IA2_4 agents: alpha = 1.0, beta = 4.0

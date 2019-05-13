@@ -1,1 +1,1 @@
-python agent_controller.py --quiet --type IA --play %1
+python agent.py --quiet %1

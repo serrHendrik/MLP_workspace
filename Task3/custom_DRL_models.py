@@ -3,38 +3,14 @@
 Created on Mon Apr 29 16:02:52 2019
 
 This file defines our custom Deep Reinforcement Learning agents, 
-build on top of the TensorForce framework.
+build on top of the Keras framework.
 
 """
-from tensorforce.agents import DQNAgent
+
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten, Activation, MaxPooling2D, Dropout
 from keras.optimizers import Adam, RMSprop 
 
-
-def new_DQNAgent(nb_actions):
-    #batch_size = 4096
-    states_spec = dict(shape=(15,15), type='float')
-    actions_spec = dict(num_actions=nb_actions, type='int')
-    network_spec = [
-        dict(type='flatten'),
-        dict(type='dense', size=32, activation='tanh'),
-        dict(type='dense', size=32, activation='tanh')
-    ]
-        
-    agent = DQNAgent(
-        states=states_spec,
-        actions=actions_spec,
-        network=network_spec,
-        actions_exploration = dict(
-            type='epsilon_decay'
-        ),
-        target_sync_frequency=50,
-        double_q_model=True
-    )
-    
-    agent.reset()
-    return agent
 
 
 def default_model_v1(input_shape=(15,15,1), action_size=4):    
@@ -55,9 +31,6 @@ def default_model_v2(input_shape=(15,15,1), action_size=4):
     model.add(Dense(action_size, activation='linear'))
     model.compile(loss='mse', optimizer=Adam(lr=0.0001))
     return model
-
-
-
 
 def cnn_model_v1(input_shape=(15,15,1), action_size=4):
     model = Sequential()

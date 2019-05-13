@@ -4,9 +4,8 @@ Created on Fri May  3 11:08:21 2019
 
 @author:
     
-Keras based DQN
-Source:
-https://keon.io/deep-q-learning/
+Keras based DDQN
+
 """
 
 from collections import deque
@@ -22,7 +21,6 @@ from custom_DRL_models import default_model_v1, default_model_v2, cnn_model_v1, 
 # Double Deep Q-learning Agent
 This model uses two networks. 
 While training (replay), the weights of the Primary are updated using Q-values of the Secondary.
-For predicting actions, the Primary is used.
 
 """
 class Keras_DDQNAgent:
@@ -32,19 +30,20 @@ class Keras_DDQNAgent:
         self.state_size = state_size
         self.action_size = action_size
         self.model_name = model_name
-        self.model1_filename = model_name + "_PRIMARY.h5"
+        self.model1_filename = model_name + ".h5"
         #self.model2_filename = model_name + "_SECONDARY.h5"
         self.update_model_counter = 0
         self.loss_per_minibatch_filename = model_name + "_loss_per_minibatch.csv"
         self.loss_total_filename = model_name + "_loss_total.csv"
         
-        self.memory = deque(maxlen=2000)
-        self.batch_size = 200
-        self.gamma = 0.95    # discount rate
         #self.epsilon = 1.0  # exploration rate
         #self.epsilon_min = 0.01
         #self.epsilon_decay = 0.95
         #self.learning_rate = 0.001
+        
+        self.memory = deque(maxlen=2000)
+        self.batch_size = 200
+        self.gamma = 0.95    # discount rate
         #if replay_counter reaches replay_frequency, do a replay
         self.replay_frequency = 200
         self.replay_counter = 0
@@ -58,6 +57,7 @@ class Keras_DDQNAgent:
             # Init models AND files to store progress of loss function corresponding to this model
             self.model1 = self._build_model()
             self.model2 = self._build_model()
+            """
             with open(self.loss_per_minibatch_filename, 'w',newline='') as wf:
                 writer = csv.writer(wf)
                 l = ["Loss function for " + self.model_name + " calculated per " + str(self.batch_size) + " samples."]
@@ -68,7 +68,7 @@ class Keras_DDQNAgent:
                 l = ["Loss function for " + self.model_name + " calculated per episode."]
                 writer.writerow(l)
             wf.close()
-            
+            """
         else:
             self.model1 = load_model(self.model1_filename)
             self.model2 = load_model(self.model1_filename)
@@ -78,8 +78,6 @@ class Keras_DDQNAgent:
         #return cnn_model_v2(input_shape=(15,15,1), action_size = self.action_size)
     
     def remember(self, state, action, reward, next_state, done):
-        #state = np.reshape(state,[1,self.state_size])
-        #next_state = np.reshape(next_state,[1,self.state_size])
         state = self.reshape_state(state)
         next_state = self.reshape_state(next_state)
         self.memory.append((state, action, reward, next_state, done))
@@ -156,6 +154,6 @@ class Keras_DDQNAgent:
     def end_episode(self):
         self.update_models()
         self.save_model()
-        self.save_loss()
+        #self.save_loss()
         print("\n\nDDQN Agent finished.\n")
     

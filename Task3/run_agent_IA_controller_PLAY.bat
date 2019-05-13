@@ -1,1 +1,1 @@
-python agent_controller.py --quiet --type IA --play --model models/play_no_fire_ 8081
+python agent.py --quiet 8081
