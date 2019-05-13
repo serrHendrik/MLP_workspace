@@ -38,7 +38,7 @@ def write_header(agents):
         with open(stats_file, 'w',newline='') as wf:
             writer = csv.writer(wf)
             l1 = [agent_type for _ in agents]
-            l2 = ["","TOTAL (SUM)", "MEAN", "STAND. DEVI.", "INEQUALITY", "SUSTAINABILITY", "FIRED", "TIMESTEPS TO GAME END"]
+            l2 = ["","TOTAL (SUM)", "MEAN", "STAND. DEVI.", "INEQUALITY", "SUSTAINABILITY", "Aggressivity", "TIMESTEPS TO GAME END", "HIT"]
             l = l1 + l2
             writer.writerow(l)
         wf.close()
@@ -47,7 +47,7 @@ def set_headers_written():
     global header_written
     header_written = True
 
-def write_scores(scores_agents, sustainability, fired, timestep):
+def write_scores(scores_agents, sustainability, fired, timestep, hit):
     #never modify header again
     set_headers_written()
     total = -1
@@ -58,7 +58,7 @@ def write_scores(scores_agents, sustainability, fired, timestep):
         mean = np.mean(scores_agents)
         std = np.std(scores_agents)
         inequality = ml.gini(np.asarray(scores_agents))
-    row = scores_agents + ["", total, mean, std, inequality, sustainability, fired, timestep]
+    row = scores_agents + ["", total, mean, std, inequality, sustainability, fired, timestep, hit]
     with open(stats_file, 'a',newline='') as wf:
         writer = csv.writer(wf)
         writer.writerow(row)
@@ -131,6 +131,7 @@ class Agent_Controller:
         self.sustainability = np.zeros(nb_players)
         self.nb_rewarded = np.zeros(nb_players)
         self.fired = np.zeros(nb_players)
+        self.hit = np.zeros(nb_players)
         write_header(self.player_list)
         
         
@@ -161,8 +162,11 @@ class Agent_Controller:
             self.scores_t = scores
             self.rewards = self.scores_t - self.scores_tMinus1
             #statistics
-            self.sustainability += self.rewards * self.timestep
-            self.nb_rewarded += self.rewards
+            apples_eaten = np.equal(np.ones(self.nb_players), self.rewards)
+            self.sustainability += apples_eaten * self.timestep
+            self.nb_rewarded += apples_eaten
+            hit_players = np.equal(-50*np.ones(self.nb_players), self.rewards)
+            self.hit += hit_players
         
         #Push updates
         self.agents[player].observe(self.rewards, players, apples, terminal)
@@ -207,8 +211,9 @@ class Agent_Controller:
             susTotal = self.sustainability/(self.nb_rewarded+0.001) #can't be zero
             avgSustainability = np.mean(susTotal)
             avgFired = np.mean(self.fired)
+            avgHit = np.mean(self.hit)
             
-            write_scores(scores_agents, avgSustainability, avgFired, self.timestep)
+            write_scores(scores_agents, avgSustainability, avgFired, self.timestep, avgHit)
             print("Agent Controller finished.\n\n")
             
 
