@@ -7,9 +7,7 @@ Use
 `agent.cmd <port>`
 to start an agent on the given port with the default settings.
 
-For more options, agent_controller.py can be run directly (
-`python agent_controller.py <port> <extra arguments...>`
-)
+For more options, agent_controller.py can be run directly (`python agent_controller.py <port> <extra arguments...>`).
 
 The possible arguments are:
 * \<port>: the port to run the agent on
