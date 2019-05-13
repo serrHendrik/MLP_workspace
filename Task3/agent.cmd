@@ -1,1 +1,1 @@
-python agent.py --quiet %1
+python agent_controller.py --quiet %1

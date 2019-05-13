@@ -1,0 +1,2 @@
+gamma = 0.9
+exploration fixed at 0.05 (slow learning?)

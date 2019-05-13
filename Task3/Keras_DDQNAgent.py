@@ -35,7 +35,7 @@ class Keras_DDQNAgent:
         self.update_model_counter = 0
         self.loss_per_minibatch_filename = model_name + "_loss_per_minibatch.csv"
         self.loss_total_filename = model_name + "_loss_total.csv"
-        
+
         #self.epsilon = 1.0  # exploration rate
         #self.epsilon_min = 0.01
         #self.epsilon_decay = 0.95
