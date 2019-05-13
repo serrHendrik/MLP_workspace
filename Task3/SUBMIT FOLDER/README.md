@@ -7,10 +7,12 @@ Use
 `agent.cmd <port>`
 to start an agent on the given port with the default settings.
 
-For more options, agent_controller.py can be run directly. 
+For more options, agent_controller.py can be run directly (
 `python agent_controller.py <port> <extra arguments...>`
+)
+
 The possible arguments are:
-* <port>: the port to run the agent on
+* \<port>: the port to run the agent on
 * --verbose: verbose output
 * --quiet: quiet output
 * --type FR/IA: choose between Inequity Averse or Free Rider agent
