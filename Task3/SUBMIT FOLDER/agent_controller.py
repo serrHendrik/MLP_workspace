@@ -328,7 +328,7 @@ def main(argv=None):
     parser.add_argument('port', metavar='PORT', type=int, help='Port to use for server')
     parser.add_argument('--type','-t', default="IA", help='agent type is either \'FR\' (Free Rider) or \'IA\' (Inequity Averse, default)')
     parser.add_argument('--train','-a', action='count', default=0, help='In play-mode, the models will not train while playing. As FR and IA use the same model, play-mode is recommended when combining both types of players in a single game.')
-    parser.add_argument('--model', '-m', default = "models/BetaZero", type = str, help = 'name of model to store / stored in models folder (no filename extension!)')
+    parser.add_argument('--model', '-m', default = "models/DeeperMind", type = str, help = 'name of model to store / stored in models folder (no filename extension!)')
     args = parser.parse_args(argv)
 
     logger.setLevel(max(logging.INFO - 10 * (args.verbose - args.quiet), logging.DEBUG))
