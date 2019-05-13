@@ -190,7 +190,7 @@ class Agent_Controller:
         
         #statistics
         if self.actions[action_index] == "fire":
-            self.fired +=1
+            self.fired[player-1] +=1
         
         return self.actions[action_index]
         
